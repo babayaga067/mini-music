@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Sangeet</string>
+    <string name="app_logo">App Logo</string>
+    <string name="sangeet">Sangeet</string>
+    <string name="create_your_account_here">Create Your Account Here</string>
+    <string name="name">Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="i_agree_to_sangeet_term_s_and_conditions_and_privacy_policy">I agree to Sangeet Term’s and conditions and privacy Policy.</string>
+    <string name="sign_up">SIGN UP</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="login">Login</string>
+</resources>
