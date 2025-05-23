@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">musicplayer</string>
+    <string name="title_activity_library">Library</string>
+    <string name="title_activity_playlist">Playlist</string>
+    <string name="title_activity_playingnow">Playingnow</string>
+    <string name="title_activity_search">search</string>
+</resources>
