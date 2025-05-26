@@ -1,8 +1,6 @@
 package com.example.musicplayer
+
 import androidx.compose.foundation.*
-import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.image.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,9 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,7 +23,7 @@ import coil.request.ImageRequest
 @Composable
 fun PlaylistScreen() {
     val gradient = Brush.verticalGradient(
-        colors = listOf(Color(0xFF240046), Color(0xFF5A189A)),
+        colors = listOf(Color(0xFF240046), Color(0xFF5A189A))
     )
 
     Box(
@@ -58,7 +56,7 @@ fun TopAppBarSection() {
     ) {
         Column {
             Text("Hi Eva,", color = Color.White, fontSize = 20.sp)
-            Text("Good Afterooon", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+            Text("Good Afternoon", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
         }
         Box(
             modifier = Modifier
@@ -158,7 +156,7 @@ fun RecentlyPlayedItem(title: String, artist: String, imageUrl: String) {
         Spacer(modifier = Modifier.width(12.dp))
 
         Column(modifier = Modifier.weight(1f)) {
-            Text(title, color = Color.White, fontWeight = FontWeight.SemiBold)
+            Text(title, color = Color.White, fontWeight = FontWeight.Medium)
             Text(artist, color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
         }
 
@@ -171,7 +169,7 @@ fun RecentlyPlayedItem(title: String, artist: String, imageUrl: String) {
 }
 
 @Composable
-fun BottomNavigationBar() {
+fun BottomNavigationBar1() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         NavigationBar(containerColor = Color(0xFF3C096C)) {
             NavigationBarItem(
@@ -195,4 +193,3 @@ fun BottomNavigationBar() {
         }
     }
 }
-
