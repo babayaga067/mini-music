@@ -153,7 +153,7 @@ fun PlayingNowScreen() {
                 Text("More Songs", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
 
                 Spacer(modifier = Modifier.height(8.dp))
-
+// Column
                 LazyColumn {
                     items(moreSongs) { item ->
                         val (title, artist, image) = item
