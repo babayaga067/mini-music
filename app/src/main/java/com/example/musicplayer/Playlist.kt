@@ -170,6 +170,7 @@ fun RecentlyPlayedItem(title: String, artist: String, imageUrl: String) {
 
 @Composable
 fun BottomNavigationBar1() {
+    //modifier
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         NavigationBar(containerColor = Color(0xFF3C096C)) {
             NavigationBarItem(
