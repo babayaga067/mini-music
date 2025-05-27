@@ -60,6 +60,7 @@ fun PlayingNowScreen() {
         }
     ) { padding ->
         Box(
+            //Box
             modifier = Modifier
                 .fillMaxSize()
                 .background(brush = gradient)
