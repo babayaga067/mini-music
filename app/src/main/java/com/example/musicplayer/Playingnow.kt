@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
+//Composable
 fun PlayingNowScreen() {
     val gradient = Brush.verticalGradient(
         colors = listOf(Color(0xFF4C005F), Color(0xFF9D00B7)),
