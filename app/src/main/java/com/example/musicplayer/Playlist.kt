@@ -162,6 +162,7 @@ fun RecentlyPlayedItem(title: String, artist: String, imageUrl: String) {
         }
 
         Icon(
+            //Icon
             imageVector = Icons.Default.FavoriteBorder,
             contentDescription = null,
             tint = Color.White
