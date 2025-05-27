@@ -115,7 +115,7 @@ fun PlaylistsSection() {
         }
     }
 }
-
+//Composable
 @Composable
 fun LikedSongsSection() {
     Text("Liked Songs", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
