@@ -82,6 +82,7 @@ fun PlaylistsSection() {
     }
 
     Spacer(modifier = Modifier.height(12.dp))
+    //spacer
 
     val playlists = listOf(
         Pair("Clear Mind", "https://i.imgur.com/1Yc9yOE.png"),
