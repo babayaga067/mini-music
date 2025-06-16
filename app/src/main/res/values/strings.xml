@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Music App</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="title_activity_playlist2">Playlist2Activity</string>
+    <string name="title_activity_edit_profile">EditProfileActivity</string>
+    <string name="title_activity_profile">ProfileActivity</string>
+    <string name="title_activity_overflow">OverflowActivity</string>
+</resources>
