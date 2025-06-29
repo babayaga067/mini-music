@@ -101,7 +101,7 @@ fun AddMusicBody() {
                     onClick = {
                         val model = MusicModel(
                             "", pName,
-                            pPrice.toDouble(), pDesc
+                            pPrice, pDesc
                         )
                         viewModel.addMusic(model) { success, msg ->
                             if (success) {

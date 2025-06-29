@@ -28,15 +28,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.sangeet.R
-import com.example.sangeet.view.AddProductBody
-import com.example.sangeet.view.HomeScreen
+import com.example.sangeet.view.HomeActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            HomeScreen()
+            HomeActivity()
         }
     }
 }
