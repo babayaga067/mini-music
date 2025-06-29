@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "653620662895",
+    "project_id": "sangeetmusicapp",
+    "storage_bucket": "sangeetmusicapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:653620662895:android:4da07430dd309df5a4f39a",
+        "android_client_info": {
+          "package_name": "com.example.sangeet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCz3t6sFKMMKhh79Vv48NeUBj2qVanLVCw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
