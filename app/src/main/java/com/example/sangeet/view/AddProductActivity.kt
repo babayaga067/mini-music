@@ -27,7 +27,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.sangeet.model.ProductModel
-import com.example.sangeet.repository.ProductRepositoryImpl
+import com.example.sangeet.repository.MusicRepositoryImpl
 import com.example.sangeet.ViewModel.ProductViewModel
 
 
@@ -47,7 +47,7 @@ fun AddProductBody() {
     var pPrice by remember { mutableStateOf("") }
     var pDesc by remember { mutableStateOf("") }
 
-    val repo = remember { ProductRepositoryImpl() }
+    val repo = remember { MusicRepositoryImpl() }
     val viewModel = remember { ProductViewModel(repo) }
 
     val context = LocalContext.current
