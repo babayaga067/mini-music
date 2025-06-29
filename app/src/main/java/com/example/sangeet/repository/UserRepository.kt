@@ -8,13 +8,8 @@ interface UserRepository {
     // Authentication
     fun login(email: String, password: String, callback: (Boolean, String) -> Unit)
     fun register(
-        userId: String,
         email: String,
         password: String,
-        firstName: String,
-        lastName: String,
-        gender: String,
-        address: String,
         callback: (Boolean, String, String) -> Unit
     )
     fun forgetPassword(email: String, callback: (Boolean, String) -> Unit)

@@ -15,16 +15,11 @@ class UserViewModel(private val repo: UserRepository) : ViewModel() {
     }
 
     fun register(
-        userId: String,
         email: String,
         password: String,
-        firstName: String,
-        lastName: String,
-        gender: String,
-        address: String,
         callback: (Boolean, String, String) -> Unit
     ) {
-        repo.register(userId, email, password, firstName, lastName, gender, address, callback)
+        repo.register(email, password, callback)
     }
 
     fun forgetPassword(email: String, callback: (Boolean, String) -> Unit) {

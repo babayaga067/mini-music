@@ -26,29 +26,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.sangeet.model.ProductModel
+import com.example.sangeet.model.MusicModel
 import com.example.sangeet.repository.MusicRepositoryImpl
-import com.example.sangeet.ViewModel.ProductViewModel
+import com.example.sangeet.ViewModel.MusicViewModel
 
 
-class AddProductActivity : ComponentActivity() {
+class AddMusicActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AddProductBody()
+            AddMusicBody()
         }
     }
 }
 
 @Composable
-fun AddProductBody() {
+fun AddMusicBody() {
     var pName by remember { mutableStateOf("") }
     var pPrice by remember { mutableStateOf("") }
     var pDesc by remember { mutableStateOf("") }
 
     val repo = remember { MusicRepositoryImpl() }
-    val viewModel = remember { ProductViewModel(repo) }
+    val viewModel = remember { MusicViewModel(repo) }
 
     val context = LocalContext.current
     val activity = context as? Activity
@@ -67,7 +67,7 @@ fun AddProductBody() {
                         pName = it
                     },
                     placeholder = {
-                        Text("Enter product name")
+                        Text("Enter music name")
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -99,11 +99,11 @@ fun AddProductBody() {
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
                     onClick = {
-                        val model = ProductModel(
+                        val model = MusicModel(
                             "", pName,
                             pPrice.toDouble(), pDesc
                         )
-                        viewModel.addProduct(model) { success, msg ->
+                        viewModel.addMusic(model) { success, msg ->
                             if (success) {
                                 Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                                 activity?.finish()
@@ -116,7 +116,7 @@ fun AddProductBody() {
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Add Product")
+                    Text("Add Music")
                 }
             }
         }
@@ -126,6 +126,6 @@ fun AddProductBody() {
 
 @Preview
 @Composable
-fun PreviewAddProductBody() {
-    AddProductBody()
+fun PreviewAddMusicBody() {
+    AddMusicBody()
 }

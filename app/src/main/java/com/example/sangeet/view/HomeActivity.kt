@@ -1,5 +1,4 @@
 package com.example.sangeet.view
-
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,7 +44,7 @@ import com.example.sangeet.R
 
 
 @Composable
-fun HomeScreen() {
+fun HomeActivity() {
     val gradient = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF4C005F), // Deep Purple
@@ -217,6 +216,6 @@ fun HomeScreen() {
 
 @Preview(showBackground = true)
 @Composable
-fun HomeScreenPreview() {
-    HomeScreen()
+fun HomeActivityPreview() {
+    HomeActivity()
 }

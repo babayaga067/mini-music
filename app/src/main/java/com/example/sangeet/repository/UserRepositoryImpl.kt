@@ -8,7 +8,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 
-class UserRepositoryImpl(instance: FirebaseAuth, instance1: FirebaseFirestore) : UserRepository {
+class UserRepositoryImpl : UserRepository {
 
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val ref: DatabaseReference = FirebaseDatabase.getInstance().getReference("Users")
@@ -21,13 +21,8 @@ class UserRepositoryImpl(instance: FirebaseAuth, instance1: FirebaseFirestore) :
     }
 
     override fun register(
-        userId: String,
         email: String,
         password: String,
-        firstName: String,
-        lastName: String,
-        gender: String,
-        address: String,
         callback: (Boolean, String, String) -> Unit
     ) {
         auth.createUserWithEmailAndPassword(email, password)

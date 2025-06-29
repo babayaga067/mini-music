@@ -3,18 +3,18 @@ package com.example.sangeet.ViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.sangeet.model.ProductModel
-import com.example.sangeet.repository.ProductRepository
+import com.example.sangeet.model.MusicModel
+import com.example.sangeet.repository.MusicRepository
 
-class ProductViewModel(private val repo: ProductRepository) : ViewModel() {
+class MusicViewModel(private val repo: MusicRepository) : ViewModel() {
 
-    // LiveData for all products
-    private val _allProducts = MutableLiveData<List<ProductModel?>>()
-    val allProducts: LiveData<List<ProductModel?>> get() = _allProducts
+    // LiveData for all musics
+    private val _allMusics = MutableLiveData<List<MusicModel?>>()
+    val allMusics: LiveData<List<MusicModel?>> get() = _allMusics
 
-    // LiveData for single product
-    private val _product = MutableLiveData<ProductModel?>()
-    val product: LiveData<ProductModel?> get() = _product
+    // LiveData for single music
+    private val _music = MutableLiveData<MusicModel?>()
+    val music: LiveData<MusicModel?> get() = _music
 
     // LiveData for loading state
     private val _isLoading = MutableLiveData<Boolean>()
@@ -24,14 +24,14 @@ class ProductViewModel(private val repo: ProductRepository) : ViewModel() {
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String> get() = _errorMessage
 
-    // Add a new product
-    fun addProduct(product: ProductModel, callback: (Boolean, String) -> Unit) {
+    // Add a new music
+    fun addMusic(music: MusicModel, callback: (Boolean, String) -> Unit) {
         _isLoading.value = true
-        repo.addProduct(product) { success, message ->
+        repo.addMusic(music) { success, message ->
             _isLoading.value = false
             if (success) {
-                // Refresh the products list after successful addition
-                getAllProducts()
+                // Refresh the musics list after successful addition
+                getAllMusics()
             } else {
                 _errorMessage.value = message
             }
@@ -39,20 +39,20 @@ class ProductViewModel(private val repo: ProductRepository) : ViewModel() {
         }
     }
 
-    // Update product by ID with new data
-    fun updateProduct(
-        productId: String,
+    // Update music by ID with new data
+    fun updateMusic(
+        musicId: String,
         updatedData: Map<String, Any?>,
         callback: (Boolean, String) -> Unit
     ) {
         _isLoading.value = true
-        repo.updateProduct(productId, updatedData) { success, message ->
+        repo.updateMusic(musicId, updatedData) { success, message ->
             _isLoading.value = false
             if (success) {
-                // Refresh the products list after successful update
-                getAllProducts()
-                // Also refresh the single product if it's the same ID
-                getProductById(productId)
+                // Refresh the musics list after successful update
+                getAllMusics()
+                // Also refresh the single music if it's the same ID
+                getMusicById(musicId)
             } else {
                 _errorMessage.value = message
             }
@@ -60,16 +60,16 @@ class ProductViewModel(private val repo: ProductRepository) : ViewModel() {
         }
     }
 
-    // Delete product by ID
-    fun deleteProduct(productId: String, callback: (Boolean, String) -> Unit) {
+    // Delete music by ID
+    fun deleteMusic(musicId: String, callback: (Boolean, String) -> Unit) {
         _isLoading.value = true
-        repo.deleteProduct(productId) { success, message ->
+        repo.deleteMusic(musicId) { success, message ->
             _isLoading.value = false
             if (success) {
-                // Refresh the products list after successful deletion
-                getAllProducts()
-                // Clear the single product if it was the deleted one
-                _product.value = null
+                // Refresh the musics list after successful deletion
+                getAllMusics()
+                // Clear the single music if it was the deleted one
+                _music.value = null
             } else {
                 _errorMessage.value = message
             }
@@ -77,72 +77,72 @@ class ProductViewModel(private val repo: ProductRepository) : ViewModel() {
         }
     }
 
-    // Get all products
-    fun getAllProducts(callback: ((Boolean, String, List<ProductModel>?) -> Unit)? = null) {
+    // Get all musics
+    fun getAllMusics(callback: ((Boolean, String, List<MusicModel>?) -> Unit)? = null) {
         _isLoading.value = true
-        repo.getAllProducts { success, message, products ->
+        repo.getAllMusics { success, message, musics ->
             _isLoading.value = false
             if (success) {
-                _allProducts.postValue(products ?: emptyList())
+                _allMusics.postValue(musics ?: emptyList())
             } else {
-                _allProducts.postValue(emptyList())
+                _allMusics.postValue(emptyList())
                 _errorMessage.value = message
             }
-            callback?.invoke(success, message, products)
+            callback?.invoke(success, message, musics)
         }
     }
 
-    // Get product by ID
-    fun getProductById(
-        productId: String,
-        callback: ((Boolean, String, ProductModel?) -> Unit)? = null
+    // Get music by ID
+    fun getMusicById(
+        musicId: String,
+        callback: ((Boolean, String, MusicModel?) -> Unit)? = null
     ) {
         _isLoading.value = true
-        repo.getProductById(productId) { success, message, product ->
+        repo.getMusicById(musicId) { success, message, music ->
             _isLoading.value = false
             if (success) {
-                _product.postValue(product)
+                _music.postValue(music)
             } else {
-                _product.postValue(null)
+                _music.postValue(null)
                 _errorMessage.value = message
             }
-            callback?.invoke(success, message, product)
+            callback?.invoke(success, message, music)
         }
     }
 //
-//    // Search products by name or other criteria
-//    fun searchProducts(
+//    // Search musics by name or other criteria
+//    fun searchMusics(
 //        query: String,
-//        callback: ((Boolean, String, List<ProductModel>?) -> Unit)? = null
+//        callback: ((Boolean, String, List<MusicModel>?) -> Unit)? = null
 //    ) {
 //        _isLoading.value = true
-//        repo.searchProducts(query) { success, message, products ->
+//        repo.searchMusics(query) { success, message, musics ->
 //            _isLoading.value = false
 //            if (success) {
-//                _allProducts.postValue(products ?: emptyList())
+//                _allMusics.postValue(musics ?: emptyList())
 //            } else {
-//                _allProducts.postValue(emptyList())
+//                _allMusics.postValue(emptyList())
 //                _errorMessage.value = message
 //            }
-//            callback?.invoke(success, message, products)
+//            callback?.invoke(success, message, musics)
 //        }
 //    }
 //
-//    // Get products by category
-//    fun getProductsByCategory(
+//    // Get musics by category
+//    fun getMusicsByCategory(
 //        category: String,
-//        callback: ((Boolean, String, List<ProductModel>?) -> Unit)? = null
+//        callback: ((Boolean, String, List<MusicModel>?) -> Unit)? = null
 //    ) {
 //        _isLoading.value = true
-//        repo.getProductsByCategory(category) { success, message, products ->
+//        repo.getMusicsByCategory(category) { success, message, musics ->
 //            _isLoading.value = false
 //            if (success) {
-//                _allProducts.postValue(products ?: emptyList())
+//                _allMusics.postValue(musics ?: emptyList())
 //            } else {
-//                _allProducts.postValue(emptyList())
+//                _allMusics.postValue(emptyList())
 //                _errorMessage.value = message
 //            }
-//            callback?.invoke(success, message, products)
+//            callback?.invoke(success, message, musics)
 //        }
 //    }
 
@@ -151,28 +151,28 @@ class ProductViewModel(private val repo: ProductRepository) : ViewModel() {
 //        _errorMessage.value = null
 //    }
 
-    // Clear product data
-    fun clearProductData() {
-        _product.value = null
+    // Clear music data
+    fun clearMusicData() {
+        _music.value = null
     }
 
-    // Clear all products data
-    fun clearAllProductsData() {
-        _allProducts.value = emptyList()
+    // Clear all musics data
+    fun clearAllMusicsData() {
+        _allMusics.value = emptyList()
     }
 
     // Refresh data
     fun refreshData() {
-        getAllProducts()
+        getAllMusics()
     }
 
-    // Check if products list is empty
-    fun isProductsEmpty(): Boolean {
-        return _allProducts.value?.isEmpty() ?: true
+    // Check if musics list is empty
+    fun isMusicsEmpty(): Boolean {
+        return _allMusics.value?.isEmpty() ?: true
     }
 
-    // Get products count
-    fun getProductsCount(): Int {
-        return _allProducts.value?.size ?: 0
+    // Get musics count
+    fun getMusicsCount(): Int {
+        return _allMusics.value?.size ?: 0
     }
 }
