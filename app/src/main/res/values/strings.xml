@@ -7,4 +7,10 @@
     <string name="title_activity_dashboard">DashboardActivity</string>
     <string name="title_activity_home">HomeActivity</string>
     <string name="title_activity_register">RegisterActivity</string>
+    <string name="title_activity_splash_screen">SplashScreen</string>
+    <string name="title_activity_library">LibraryActivity</string>
+    <string name="title_activity_menu">MenuActivity</string>
+    <string name="title_activity_playing_now">PlayingNowActivity</string>
+    <string name="title_activity_playlist">PlaylistActivity</string>
+    <string name="title_activity_search">SearchActivity</string>
 </resources>

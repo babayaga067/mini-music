@@ -19,7 +19,7 @@ class MusicRepositoryImpl : MusicRepository {
             }
             .addOnFailureListener {
                 callback(false, it.message ?: "Error adding music")
-            }
+            6}
     }
 
     override fun updateMusic(
