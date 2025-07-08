@@ -1,15 +1,13 @@
 package com.example.sangeet.view
 
 import android.app.Activity
-import android.content.Intent
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -17,30 +15,18 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.*
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sangeet.viewmodel.UserViewModel
-import com.example.sangeet.repository.UserRepositoryImpl
+import androidx.navigation.NavController
 import com.example.sangeet.model.UserModel
-
-
-class RegisterActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            RegisterScreen()
-        }
-    }
-}
+import com.example.sangeet.repository.UserRepositoryImpl
+import com.example.sangeet.viewmodel.UserViewModel
 
 @Composable
 fun RegisterScreen(
-    onSignupSuccess: () -> Unit = {}, // Callback when signup is successful
-    onLoginClick: () -> Unit = {}     // Navigate to login
+    navController: NavController,
+    onSignupSuccess: () -> Unit = {},
 ) {
-
     val context = LocalContext.current
     val activity = context as? Activity
 
@@ -53,9 +39,7 @@ fun RegisterScreen(
     val repo = remember { UserRepositoryImpl() }
     val userViewModel = remember { UserViewModel(repo) }
 
-    val gradient = Brush.verticalGradient(
-        listOf(Color(0xFF4A004A), Color(0xFF1C0038))
-    )
+    val gradient = Brush.verticalGradient(listOf(Color(0xFF4A004A), Color(0xFF1C0038)))
 
     Box(
         modifier = Modifier
@@ -69,7 +53,6 @@ fun RegisterScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             Text("Sign Up", fontSize = 30.sp, color = Color.White)
-
             Spacer(modifier = Modifier.height(20.dp))
 
             RegisterTextField("Full Name", name) { name = it }
@@ -79,10 +62,7 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Checkbox(checked = termsAccepted, onCheckedChange = { termsAccepted = it })
                 Text("I accept the Terms & Conditions", color = Color.White, fontSize = 12.sp)
             }
@@ -91,33 +71,43 @@ fun RegisterScreen(
 
             Button(
                 onClick = {
-                    if (name.isBlank() || email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
-                        Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
-                    } else if (!termsAccepted) {
-                        Toast.makeText(context, "Please accept terms", Toast.LENGTH_SHORT).show()
-                    } else if (password != confirmPassword) {
-                        Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                    } else {
-                        // Start registration process
-                        userViewModel.register(email, password) { success, message, userId ->
-                            if (success) {
-                                val userModel = UserModel(
-                                    userId, name, email, password
-                                )
-                                userViewModel.addUserToDatabase(
-                                    userId,
-                                    userModel
-                                ) { dbSuccess, dbMessage ->
-                                    if (dbSuccess) {
-                                        Toast.makeText(context, "Signup successful!", Toast.LENGTH_LONG).show()
-                                        val intent = Intent(context, LoginActivity::class.java)
-                                        context.startActivity(intent)
-                                    } else {
-                                        Toast.makeText(context, "Database error: $dbMessage", Toast.LENGTH_LONG).show()
+                    val trimmedName = name.trim()
+                    val trimmedEmail = email.trim()
+
+                    when {
+                        trimmedName.isEmpty() || trimmedEmail.isEmpty() || password.isEmpty() || confirmPassword.isEmpty() ->
+                            Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+
+                        !android.util.Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches() ->
+                            Toast.makeText(context, "Invalid email format", Toast.LENGTH_SHORT).show()
+
+                        password.length < 6 ->
+                            Toast.makeText(context, "Password should be at least 6 characters", Toast.LENGTH_SHORT).show()
+
+                        password != confirmPassword ->
+                            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+
+                        !termsAccepted ->
+                            Toast.makeText(context, "Please accept terms", Toast.LENGTH_SHORT).show()
+
+                        else -> {
+                            userViewModel.register(trimmedEmail, password) { success, message, userId ->
+                                if (success) {
+                                    val userModel = UserModel(userId, trimmedName, trimmedEmail, password)
+                                    userViewModel.addUserToDatabase(userId, userModel) { dbSuccess, dbMessage ->
+                                        if (dbSuccess) {
+                                            Toast.makeText(context, "Signup successful!", Toast.LENGTH_LONG).show()
+                                            navController.navigate("login") {
+                                                popUpTo("register") { inclusive = true }
+                                            }
+                                            onSignupSuccess()
+                                        } else {
+                                            Toast.makeText(context, "Database error: $dbMessage", Toast.LENGTH_LONG).show()
+                                        }
                                     }
+                                } else {
+                                    Toast.makeText(context, "Registration failed: $message", Toast.LENGTH_LONG).show()
                                 }
-                            } else {
-                                Toast.makeText(context, "Registration failed: $message", Toast.LENGTH_LONG).show()
                             }
                         }
                     }
@@ -134,7 +124,11 @@ fun RegisterScreen(
 
             Row {
                 Text("Already have an account? ", color = Color.White)
-                TextButton(onClick = onLoginClick) {
+                TextButton(onClick = {
+                    navController.navigate("login") {
+                        popUpTo("register") { inclusive = true }
+                    }
+                }) {
                     Text("Login", color = Color.Cyan)
                 }
             }
@@ -150,13 +144,23 @@ fun RegisterTextField(
     isPassword: Boolean = false,
     onValueChange: (String) -> Unit
 ) {
+    var passwordVisible by remember { mutableStateOf(false) }
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label, color = Color.White) },
         singleLine = true,
-        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
+        visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+        trailingIcon = {
+            if (isPassword) {
+                val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(imageVector = icon, contentDescription = null, tint = Color.White)
+                }
+            }
+        },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color.White,
             unfocusedBorderColor = Color.LightGray,
@@ -171,10 +175,4 @@ fun RegisterTextField(
             .height(55.dp)
             .padding(vertical = 4.dp)
     )
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun RegisterActivityPreview() {
-    RegisterScreen()
 }
