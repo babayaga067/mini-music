@@ -6,7 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+<<<<<<< HEAD
 import androidx.compose.foundation.layout.Arrangement
+=======
+>>>>>>> e829e64 (Add feature)
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,10 +28,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Favorite
+<<<<<<< HEAD
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+=======
+import androidx.compose.material.icons.filled.Person
+>>>>>>> e829e64 (Add feature)
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,13 +50,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+<<<<<<< HEAD
+=======
+import androidx.compose.ui.graphics.Brush
+>>>>>>> e829e64 (Add feature)
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+<<<<<<< HEAD
 import androidx.core.app.NavUtils
+=======
+>>>>>>> e829e64 (Add feature)
 
 
 class SearchActivity : ComponentActivity() {
@@ -217,11 +231,17 @@ fun SongItem(song: Song, onHeartClick: () -> Unit) {
                 contentDescription = "Favorite",
                 tint = if (song.isFavorite) Color.White else Color.LightGray
             )
+<<<<<<< HEAD
 
         }
     }
 }
 
+=======
+        }
+    }
+}
+>>>>>>> e829e64 (Add feature)
 @Preview(showBackground = true)
 @Composable
 fun PreviewScreen() {

@@ -68,6 +68,7 @@ fun Playlist2Body() {
 
             // Top Bar
             Row(
+<<<<<<< HEAD
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -81,6 +82,13 @@ fun Playlist2Body() {
 
                 Column {
                     Text("Hi Eva,", color = Color.White, fontSize = 16.sp)
+=======
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text("Hi Eva,", color = Color.White, fontSize = 18.sp)
+>>>>>>> e829e64 (Add feature)
                     Text("Good Afternoon", color = Color.White, fontSize = 14.sp)
                 }
                 Spacer(modifier = Modifier.weight(1f))
@@ -99,6 +107,7 @@ fun Playlist2Body() {
             Spacer(modifier = Modifier.height(24.dp))
 
             // Playlists Section
+<<<<<<< HEAD
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -107,11 +116,19 @@ fun Playlist2Body() {
                 Text("Playlists", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
             }
+=======
+            Text("Playlists", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Spacer(modifier = Modifier.height(12.dp))
+>>>>>>> e829e64 (Add feature)
 
             LazyRow {
                 items(playlists) { playlist ->
                     PlaylistCard(playlist)
+<<<<<<< HEAD
                     Spacer(modifier = Modifier.width(6.dp))
+=======
+                    Spacer(modifier = Modifier.width(12.dp))
+>>>>>>> e829e64 (Add feature)
                 }
             }
 
@@ -167,6 +184,7 @@ fun PlaylistCard(playlist: Playlist) {
 
 @Composable
 fun BottomNav() {
+<<<<<<< HEAD
     val icons = listOf(
         Icons.Default.Home,
         Icons.Default.Search,
@@ -201,6 +219,19 @@ fun BottomNav() {
             }
         }
     }
+=======
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        Icon(imageVector = Icons.Default.Home, contentDescription = "Home", tint = Color.White)
+        Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White)
+        Icon(imageVector = Icons.Default.LibraryMusic, contentDescription = "Library", tint = Color.White)
+    }
+
+>>>>>>> e829e64 (Add feature)
 }
 @Preview(showBackground = true)
 @Composable
