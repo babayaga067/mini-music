@@ -20,6 +20,7 @@ googleFirebaseCrashlytics = "3.0.4"
 firebaseAuth = "23.2.1"
 materialIconsExtended = "1.7.8"
 runtimeLivedata = "1.8.2"
+coreSplashscreen = "1.0.1"
 
 
 [libraries]
@@ -49,9 +50,11 @@ firebase-database-ktx = { group = "com.google.firebase", name = "firebase-databa
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlytics" }
 #noinspection SimilarGradleDependency
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
+google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version = "2.9.9" }
