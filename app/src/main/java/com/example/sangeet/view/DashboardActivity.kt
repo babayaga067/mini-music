@@ -1,8 +1,5 @@
 package com.example.sangeet.view
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -41,22 +38,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.sangeet.R
 
-class DashboardActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            DashboardScreen()
-        }
-    }
-}
+
+
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(navController: NavController) {
     val gradient = Brush.verticalGradient(
         colors = listOf(
             Color(0xFF4C005F), // Deep Purple
@@ -65,6 +56,7 @@ fun DashboardScreen() {
         startY = 0f,
         endY = Float.POSITIVE_INFINITY
     )
+
 
     val navItems = listOf("Home", "Search", "Your Library")
 
@@ -224,10 +216,4 @@ fun DashboardScreen() {
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DashboardScreenPreview() {
-    DashboardScreen()
 }
