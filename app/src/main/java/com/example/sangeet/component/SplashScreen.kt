@@ -1,67 +1,63 @@
 package com.example.sangeet.component
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.sangeet.R
-
-class SplashActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            SplashBody()
-        }
-    }
-}
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
 
 @Composable
-fun SplashBody() {
-    Scaffold { padding ->
-        // The background image should usually fill the entire scaffold content area
-        Image(
-            painter = painterResource(id = R.drawable.background), // Use 'id =' for clarity, but not strictly necessary
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = androidx.compose.ui.layout.ContentScale.Crop // Often good for background images
-        )
+fun SplashScreen(navController: NavController) {
+    // Navigate after delay
+    LaunchedEffect(Unit) {
+        delay(2000) // 2-second splash duration
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            navController.navigate("dashboard") {
+                popUpTo("splash") { inclusive = true }
+            }
+        } else {
+            navController.navigate("login") {
+                popUpTo("splash") { inclusive = true }
+            }
+        }
+    }
 
-        Column(modifier = Modifier
-            .padding(padding) // Apply padding from Scaffold
-            .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+    // Splash UI
+    Scaffold { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.logo), // Use 'id ='
+                painter = painterResource(id = R.drawable.background),
                 contentDescription = null,
-                // You might want to add a modifier for the logo's size, e.g.,
-                // modifier = Modifier.size(200.dp)
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            CircularProgressIndicator()
+
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                CircularProgressIndicator()
+            }
         }
     }
-}
-
-@Preview
-@Composable
-fun PreDash() {
-    SplashBody()
 }
