@@ -45,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.Navigator
 import com.example.sangeet.R // Import your R file to access drawables
 
 class SearchActivity : ComponentActivity() {
@@ -58,8 +59,9 @@ class SearchActivity : ComponentActivity() {
 }
 
 @Composable
-fun SearchScreen() {
+fun SearchScreen(navigator: Navigator) {
     val gradientColors = listOf(Color(0xFF6100FF), Color(0xFF9A00FF))
+
     // Initialize searchQuery with an empty string
     var searchQuery by remember { mutableStateOf("") }
 
