@@ -1,10 +1,6 @@
 package com.example.sangeet.view
 
-
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -16,35 +12,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-class LoginActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            LoginScreen()
-        }
-    }
-}
+import androidx.navigation.NavController
+import com.example.sangeet.repository.UserRepositoryImpl
+import com.example.sangeet.viewmodel.UserViewModel
 
 @Composable
-fun LoginScreen() {
-    // Updated gradient background colors to match uploaded image
+fun LoginScreen(navController: NavController) {
     val gradient = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFF4A004A), // Deep plum
-            Color(0xFF1C0038)  // Dark purple-indigo
+            Color(0xFF4A004A),
+            Color(0xFF1C0038)
         )
     )
 
+    val repo = remember { UserRepositoryImpl() }
+    val userViewModel = remember { UserViewModel(repo) }
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -59,12 +52,7 @@ fun LoginScreen() {
         ) {
             Row {
                 Text("Welcome to ", color = Color.White, fontSize = 14.sp)
-                Text(
-                    "Sangeet",
-                    color = Color(0xFFE91E63),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
+                Text("Sangeet", color = Color(0xFFE91E63), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Text("!", color = Color.White, fontSize = 14.sp)
             }
             Text("Please Login.", color = Color.White, fontSize = 14.sp)
@@ -95,6 +83,7 @@ fun LoginScreen() {
                 onValueChange = { email = it },
                 label = { Text("Phone Number / Email") },
                 singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.White,
                     unfocusedBorderColor = Color.LightGray,
@@ -137,7 +126,16 @@ fun LoginScreen() {
             Spacer(modifier = Modifier.height(24.dp))
 
             Button(
-                onClick = { /* TODO: Handle login logic */ },
+                onClick = {
+                    userViewModel.login(email, password) { success, message ->
+                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                        if (success) {
+                            navController.navigate("dashboard") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8E24AA)),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -155,10 +153,4 @@ fun LoginScreen() {
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewLoginScreen() {
-    LoginScreen()
 }
