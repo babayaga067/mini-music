@@ -107,7 +107,7 @@ fun PlayingNowScreen() {
 
                 // Album Art
                 Image(
-                    painter = painterResource(id = R.drawable.night_changes),
+                    painter = painterResource(id = R.drawable.jhim),
                     contentDescription = "Album Art",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -172,30 +172,30 @@ fun PlayingNowScreen() {
                 Spacer(modifier = Modifier.height(8.dp))
 // Column
                 LazyColumn {
-                    items(moreSongs) { item ->
-                        val (title, artist, image) = item
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = painterResource(id = image),
-                                contentDescription = title,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(50.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(title, color = Color.White, fontWeight = FontWeight.Bold)
-                                Text(artist, color = Color.LightGray, fontSize = 12.sp)
-                            }
-                            Icon(Icons.Default.FavoriteBorder, contentDescription = null, tint = Color.White)
-                        }
-                    }
+//                    items(moreSongs) { item ->
+//                        val (title, artist, image) = item
+//                        Row(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(vertical = 8.dp),
+//                            verticalAlignment = Alignment.CenterVertically
+//                        ) {
+//                            Image(
+//                                painter = painterResource(id = image),
+//                                contentDescription = title,
+//                                contentScale = ContentScale.Crop,
+//                                modifier = Modifier
+//                                    .size(50.dp)
+//                                    .clip(RoundedCornerShape(8.dp))
+//                            )
+//                            Spacer(modifier = Modifier.width(12.dp))
+//                            Column(modifier = Modifier.weight(1f)) {
+//                                Text(title, color = Color.White, fontWeight = FontWeight.Bold)
+//                                Text(artist, color = Color.LightGray, fontSize = 12.sp)
+//                            }
+//                            Icon(Icons.Default.FavoriteBorder, contentDescription = null, tint = Color.White)
+//                        }
+//                    }
                 }
             }
         }
