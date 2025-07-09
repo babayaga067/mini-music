@@ -2,34 +2,16 @@ package com.example.sangeet.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LibraryMusic
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,27 +20,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.sangeet.R
-
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 
 @Composable
 fun DashboardScreen(navController: NavController) {
+    val navBackStackEntry = navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry.value?.destination?.route ?: ""
+
     val gradient = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFF4C005F), // Deep Purple
-            Color(0xFF9D00B7)  // Vivid Violet
-        ),
+        colors = listOf(Color(0xFF4C005F), Color(0xFF9D00B7)),
         startY = 0f,
         endY = Float.POSITIVE_INFINITY
     )
 
-
-    val navItems = listOf("Home", "Search", "Your Library")
+    val navItems = listOf(
+        NavItem("Home", Icons.Default.Home, "dashboard"),
+        NavItem("Search", Icons.Default.Search, "search"),
+        NavItem("Library", Icons.Default.LibraryMusic, "library")
+    )
 
     val recentlyPlayed = listOf(
         "Stay" to R.drawable.stay,
@@ -75,21 +59,23 @@ fun DashboardScreen(navController: NavController) {
         Triple("Cruel Summer", "Taylor Swift", R.drawable.cruel)
     )
 
+    var selectedIndex by remember { mutableIntStateOf(0) }
+
     Scaffold(
         bottomBar = {
             NavigationBar(containerColor = Color(0xFF4C005F), contentColor = Color.White) {
                 navItems.forEachIndexed { index, item ->
                     NavigationBarItem(
-                        icon = {
-                            when (index) {
-                                0 -> Icon(Icons.Default.Home, contentDescription = "Home")
-                                1 -> Icon(Icons.Default.Search, contentDescription = "Search")
-                                2 -> Icon(Icons.Default.LibraryMusic, contentDescription = "Library")
+                        icon = { Icon(item.icon, contentDescription = item.label) },
+                        label = { Text(item.label) },
+                        selected = selectedIndex == index,
+                        onClick = {
+                            selectedIndex = index
+                            navController.navigate(item.route) {
+                                popUpTo("dashboard") { inclusive = false }
+                                launchSingleTop = true
                             }
-                        },
-                        label = { Text(item) },
-                        selected = index == 0,
-                        onClick = {}
+                        }
                     )
                 }
             }
@@ -117,7 +103,7 @@ fun DashboardScreen(navController: NavController) {
 
                     Column {
                         Text(
-                            text = "Hi Eva,",
+                            text = "Hi Eva,", // Replace with dynamic user name if needed
                             color = Color.White,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Medium
@@ -217,3 +203,5 @@ fun DashboardScreen(navController: NavController) {
         }
     }
 }
+
+data class NavItem(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val route: String)

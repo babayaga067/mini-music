@@ -1,85 +1,91 @@
 package com.example.sangeet.view
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
+import android.media.MediaPlayer
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.sangeet.R
-
-class PlayingNowActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            PlayingNowScreen()
-        }
-    }
-}
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.example.sangeet.component.BottomNavigationBar
+import com.example.sangeet.viewmodel.SongViewModel
+import kotlinx.coroutines.delay
 
 @Composable
-//Composable
-fun PlayingNowScreen() {
-    val gradient = Brush.verticalGradient(
-        colors = listOf(Color(0xFF4C005F), Color(0xFF9D00B7)),
-        startY = 0f,
-        endY = Float.POSITIVE_INFINITY
-    )
+fun PlayingNowScreen(
+    navController: NavController,
+    viewModel: SongViewModel
+) {
+    val context = LocalContext.current
+    val song by viewModel.song
+    val navBackStackEntry = navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry.value?.destination?.route ?: ""
 
-//    val moreSongs = listOf(
-//        Triple("Blue", "Y!ung Kai", R.drawable.blue),
-//        Triple("Cruel Summer", "Taylor Swift", R.drawable.cruel)
-//    )
+    val mediaPlayer = remember { MediaPlayer() }
+    var isPlaying by remember { mutableStateOf(false) }
+    var progress by remember { mutableFloatStateOf(0f) }
+
+    // Load and play song when available
+    LaunchedEffect(song) {
+        song?.let { songData ->
+            try {
+                mediaPlayer.reset()
+                mediaPlayer.setDataSource(songData.audioUrl)
+                mediaPlayer.prepare()
+                mediaPlayer.start()
+                isPlaying = true
+            } catch (e: Exception) {
+                Log.e("MediaPlayer", "Error loading audio", e)
+            }
+        }
+    }
+
+    // Release MediaPlayer when screen is disposed
+    DisposableEffect(Unit) {
+        onDispose {
+            mediaPlayer.release()
+        }
+    }
+
+    // Update progress while playing
+    LaunchedEffect(isPlaying) {
+        while (isPlaying && mediaPlayer.isPlaying) {
+            progress = mediaPlayer.currentPosition / mediaPlayer.duration.toFloat()
+            delay(500)
+        }
+    }
+
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFF4C005F), Color(0xFF9D00B7))
+    )
 
     Scaffold(
         containerColor = Color.Transparent,
         bottomBar = {
-            NavigationBar(containerColor = Color(0xFF4C005F), contentColor = Color.White) {
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                    label = { Text("Home") },
-                    selected = false,
-                    onClick = {}
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                    label = { Text("Search") },
-                    selected = false,
-                    onClick = {}
-                )
-                NavigationBarItem(
-                    icon = { Icon(Icons.Default.LibraryMusic, contentDescription = "Library") },
-                    label = { Text("Your Library") },
-                    selected = true,
-                    onClick = {}
-                )
-            }
+            BottomNavigationBar(navController = navController, currentRoute = currentRoute)
         }
     ) { padding ->
         Box(
-            //Box
             modifier = Modifier
                 .fillMaxSize()
-                .background(brush = gradient)
+                .background(gradient)
                 .padding(padding)
         ) {
             Column(
@@ -88,45 +94,56 @@ fun PlayingNowScreen() {
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Top App Bar
+                // Top Bar
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Color.White
+                        )
+                    }
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        "Playing now",
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text("Playing now", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // Album Art
-                Image(
-                    painter = painterResource(id = R.drawable.jhim),
-                    contentDescription = "Album Art",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(220.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                )
+                if (song?.imageUrl != null) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(song!!.imageUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "Album Art",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(220.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Song Info
-                Text("Night Changes", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                Text("One Direction", color = Color.LightGray, fontSize = 14.sp)
+                Text(song?.title ?: "Loading...", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(song?.artist ?: "", color = Color.LightGray, fontSize = 14.sp)
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Progress Bar
                 Slider(
-                    value = 0.65f,
-                    onValueChange = {},
+                    value = progress,
+                    onValueChange = {
+                        progress = it
+                        if (mediaPlayer.isPlaying) {
+                            mediaPlayer.seekTo((it * mediaPlayer.duration).toInt())
+                        }
+                    },
                     colors = SliderDefaults.colors(
                         thumbColor = Color.White,
                         activeTrackColor = Color.LightGray,
@@ -139,8 +156,16 @@ fun PlayingNowScreen() {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("2:34", color = Color.White, fontSize = 12.sp)
-                    Text("3:45", color = Color.White, fontSize = 12.sp)
+                    Text(
+                        formatTime(mediaPlayer.currentPosition),
+                        color = Color.White,
+                        fontSize = 12.sp
+                    )
+                    Text(
+                        formatTime(mediaPlayer.duration),
+                        color = Color.White,
+                        fontSize = 12.sp
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -153,51 +178,36 @@ fun PlayingNowScreen() {
                 ) {
                     Icon(Icons.Default.Repeat, contentDescription = "Repeat", tint = Color.White)
                     Text("-10s", color = Color.White)
-                    IconButton(onClick = {}) {
-                        Icon(Icons.Default.PauseCircle, contentDescription = "Pause", tint = Color.White, modifier = Modifier.size(50.dp))
+                    IconButton(onClick = {
+                        if (mediaPlayer.isPlaying) {
+                            mediaPlayer.pause()
+                            isPlaying = false
+                        } else {
+                            mediaPlayer.start()
+                            isPlaying = true
+                        }
+                    }) {
+                        Icon(
+                            imageVector = if (isPlaying) Icons.Default.PauseCircle else Icons.Default.PlayArrow,
+                            contentDescription = "Play/Pause",
+                            tint = Color.White,
+                            modifier = Modifier.size(50.dp)
+                        )
                     }
                     Text("+10s", color = Color.White)
                     Icon(Icons.Default.Share, contentDescription = "Share", tint = Color.White)
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
-
                 Divider(color = Color.LightGray.copy(alpha = 0.4f))
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // More Songs
-                Text("More Songs", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-
-                Spacer(modifier = Modifier.height(8.dp))
-// Column
-                LazyColumn {
-//                    items(moreSongs) { item ->
-//                        val (title, artist, image) = item
-//                        Row(
-//                            modifier = Modifier
-//                                .fillMaxWidth()
-//                                .padding(vertical = 8.dp),
-//                            verticalAlignment = Alignment.CenterVertically
-//                        ) {
-//                            Image(
-//                                painter = painterResource(id = image),
-//                                contentDescription = title,
-//                                contentScale = ContentScale.Crop,
-//                                modifier = Modifier
-//                                    .size(50.dp)
-//                                    .clip(RoundedCornerShape(8.dp))
-//                            )
-//                            Spacer(modifier = Modifier.width(12.dp))
-//                            Column(modifier = Modifier.weight(1f)) {
-//                                Text(title, color = Color.White, fontWeight = FontWeight.Bold)
-//                                Text(artist, color = Color.LightGray, fontSize = 12.sp)
-//                            }
-//                            Icon(Icons.Default.FavoriteBorder, contentDescription = null, tint = Color.White)
-//                        }
-//                    }
-                }
             }
         }
     }
+}
+
+fun formatTime(ms: Int): String {
+    val totalSeconds = ms / 1000
+    val minutes = totalSeconds / 60
+    val seconds = totalSeconds % 60
+    return "%d:%02d".format(minutes, seconds)
 }

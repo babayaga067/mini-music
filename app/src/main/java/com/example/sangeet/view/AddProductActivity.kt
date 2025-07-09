@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.sangeet.model.MusicModel
 import com.example.sangeet.repository.MusicRepositoryImpl
-import com.example.sangeet.ViewModel.MusicViewModel
+import com.example.sangeet.viewmodel.MusicViewModel
 
 
 class AddMusicActivity : ComponentActivity() {

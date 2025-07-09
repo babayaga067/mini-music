@@ -1,9 +1,5 @@
 package com.example.sangeet.view
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,13 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LibraryMusic
-import androidx.compose.material.icons.filled.PlaylistPlay
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,29 +19,26 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavController
 import com.example.sangeet.R
-
-class LibraryActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            LibraryScreen()
-        }
-    }
-}
+import com.example.sangeet.component.BottomNavigationBar
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
-fun LibraryScreen() {
+fun LibraryScreen(navController: NavController) {
+    val navBackStackEntry = navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry.value?.destination?.route ?: ""
+
     val gradientBrush = Brush.verticalGradient(
         colors = listOf(Color(0xFF5B0E9C), Color(0xFF27005D))
     )
 
     Scaffold(
-        bottomBar = { BottomNavigationBar() },
+        bottomBar = {
+            BottomNavigationBar(navController = navController, currentRoute = currentRoute)  },
         containerColor = Color.Transparent
     ) { paddingValues ->
         Box(
@@ -64,6 +52,7 @@ fun LibraryScreen() {
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
+                // Top Greeting
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -86,6 +75,7 @@ fun LibraryScreen() {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Library Cards
                 Text("Your Library", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -95,6 +85,7 @@ fun LibraryScreen() {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Recently Played
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -109,7 +100,6 @@ fun LibraryScreen() {
                 val recentlyPlayed = listOf(
                     Song("Dandelions", "Ruth B", R.drawable.dandelions),
                     Song("Blue", "Vung Kai", R.drawable.blue),
-                    //Song("Night Changes", "One Direction", R.drawable.night_changes),
                     Song("Dhaiyra", "Sajan Raj Vaidya", R.drawable.dhaiyra),
                     Song("Sarara Sarara", "Kefir Singh Limba", R.drawable.sarara),
                     Song("Furfuri", "", R.drawable.furfuri)
@@ -128,9 +118,7 @@ fun LibraryScreen() {
 @Composable
 fun LibraryCard(icon: ImageVector, title: String, subtitle: String) {
     Card(
-        modifier = Modifier
-//            .weight(1f)
-            .height(80.dp),
+        modifier = Modifier.height(80.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0x40FFFFFF))
     ) {
@@ -167,33 +155,6 @@ fun SongItem(song: Song) {
             Text(song.title, color = Color.White, fontWeight = FontWeight.Medium)
             Text(song.artist, color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
         }
-        Icon(Icons.Default.FavoriteBorder, contentDescription = null, tint = Color.White)
-    }
-}
-
-@Composable
-fun BottomNavigationBar() {
-    NavigationBar(
-        containerColor = Color(0xFF3D0E5C),
-        contentColor = Color.White
-    ) {
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Home, contentDescription = null) },
-            label = { Text("Home") },
-            selected = false,
-            onClick = {}
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Search, contentDescription = null) },
-            label = { Text("Search") },
-            selected = false,
-            onClick = {}
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.LibraryMusic, contentDescription = null) },
-            label = { Text("Your Library") },
-            selected = true,
-            onClick = {}
-        )
+        Icon(Icons.Outlined.FavoriteBorder, contentDescription = null, tint = Color.White)
     }
 }

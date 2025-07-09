@@ -44,7 +44,11 @@ android {
 }
 
 dependencies {
-    implementation("androidx.navigation:navigation-compose:2.9.1")
+    //implementation(libs.okhttp.bom)
+    implementation( libs.androidx.lifecycle.viewmodel.ktx)
+    implementation (libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.sdk.for1.android)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.firebase.auth.v2230)
     implementation(libs.firebase.firestore)

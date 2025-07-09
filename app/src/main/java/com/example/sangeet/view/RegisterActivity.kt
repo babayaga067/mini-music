@@ -1,6 +1,5 @@
 package com.example.sangeet.view
 
-import android.app.Activity
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,25 +18,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.sangeet.model.UserModel
-import com.example.sangeet.repository.UserRepositoryImpl
 import com.example.sangeet.viewmodel.UserViewModel
 
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    onSignupSuccess: () -> Unit = {},
+    userViewModel: UserViewModel,
+    onSignupSuccess: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val activity = context as? Activity
 
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var termsAccepted by remember { mutableStateOf(false) }
-
-    val repo = remember { UserRepositoryImpl() }
-    val userViewModel = remember { UserViewModel(repo) }
 
     val gradient = Brush.verticalGradient(listOf(Color(0xFF4A004A), Color(0xFF1C0038)))
 
@@ -91,9 +86,9 @@ fun RegisterScreen(
                             Toast.makeText(context, "Please accept terms", Toast.LENGTH_SHORT).show()
 
                         else -> {
-                            userViewModel.register(trimmedEmail, password) { success, message, userId ->
+                            userViewModel.register(trimmedName, trimmedEmail, password) { success, message, userId ->
                                 if (success) {
-                                    val userModel = UserModel(userId, trimmedName, trimmedEmail, password)
+                                    val userModel = UserModel(userId, trimmedName, trimmedEmail)
                                     userViewModel.addUserToDatabase(userId, userModel) { dbSuccess, dbMessage ->
                                         if (dbSuccess) {
                                             Toast.makeText(context, "Signup successful!", Toast.LENGTH_LONG).show()

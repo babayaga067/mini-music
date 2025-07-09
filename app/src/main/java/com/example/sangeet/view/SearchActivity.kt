@@ -1,41 +1,17 @@
 package com.example.sangeet.view
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,47 +21,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.Navigator
-import com.example.sangeet.R // Import your R file to access drawables
-
-class SearchActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            SearchScreen()
-        }
-    }
-}
+import androidx.navigation.NavController
+import com.example.sangeet.viewmodel.SearchViewModel
+import com.example.sangeet.viewmodel.Song
 
 @Composable
-fun SearchScreen(navigator: Navigator) {
+fun SearchScreen(
+    navController: NavController,
+    viewModel: SearchViewModel = SearchViewModel()
+) {
     val gradientColors = listOf(Color(0xFF6100FF), Color(0xFF9A00FF))
-
-    // Initialize searchQuery with an empty string
-    var searchQuery by remember { mutableStateOf("") }
-
-    // Use mutableStateListOf for dynamic lists if you plan to add/remove songs
-    // For a fixed list, mutableStateOf(listOf(...)) is fine, but mutableStateListOf allows direct modifications.
-    val songs = remember {
-        mutableStateOf(
-            listOf(
-//                Song("Easy On Me", "Adelle", R.drawable.easy_on_me),
-                Song("Blue", "Yung Kai", R.drawable.blue),
-                Song("Dandelions", "Ruth B", R.drawable.dandelions),
-                Song("Upahaar", "Swopna Suman", R.drawable.upahar, true),
-                Song("Jhim Jhumaune Aankha", "Ekdev Limbu", R.drawable.jhim),
-                Song("Apna Bana Le", "Arijit Singh", R.drawable.apna),
-                Song("Furfuri", "Unknown", R.drawable.furfuri)
-            )
-        )
-    }
-
-    // Filter songs based on search query
-    val filteredSongs = songs.value.filter { song ->
-        song.title.contains(searchQuery, ignoreCase = true) ||
-                song.artist.contains(searchQuery, ignoreCase = true)
-    }
+    val searchQuery by viewModel.searchQuery
+    val filteredSongs = viewModel.filteredSongs()
 
     Box(
         modifier = Modifier
@@ -99,13 +46,13 @@ fun SearchScreen(navigator: Navigator) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = { /* Handle back button click */ }) {
+                IconButton(onClick = { navController.popBackStack() }) {
                     Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Text("Search", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { /* Handle profile icon click */ }) {
+                IconButton(onClick = { /* Profile */ }) {
                     Icon(
                         Icons.Default.Person,
                         contentDescription = "Profile",
@@ -124,14 +71,14 @@ fun SearchScreen(navigator: Navigator) {
             // Search bar
             TextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
+                onValueChange = { viewModel.updateSearchQuery(it) },
                 placeholder = { Text("Search here", color = Color.LightGray) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(10.dp)),
-                colors = TextFieldDefaults.colors( // Use TextFieldDefaults.colors for Material 3
-                    focusedContainerColor = Color.Transparent, // Corrected parameter for Material 3
-                    unfocusedContainerColor = Color.Transparent, // Corrected parameter for Material 3
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
                     focusedTextColor = Color.White,
                     unfocusedTextColor = Color.White,
                     cursorColor = Color.White,
@@ -140,14 +87,12 @@ fun SearchScreen(navigator: Navigator) {
                 )
             )
 
-
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Songs for you
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Songs For You", color = Color.White, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { /* Handle arrow forward click */ }) {
+                IconButton(onClick = { /* Scroll to top or refresh */ }) {
                     Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
                 }
             }
@@ -156,31 +101,14 @@ fun SearchScreen(navigator: Navigator) {
 
             LazyColumn {
                 items(filteredSongs) { song ->
-                    // Make a copy of the song to ensure recomposition when isFavorite changes
-                    // or, ideally, pass a mutable state directly from the data source.
-                    val currentSong = song.copy()
-                    SongItem(song = currentSong) {
-                        // Find the song in the original list and update its favorite status
-                        songs.value = songs.value.map {
-                            if (it.title == currentSong.title && it.artist == currentSong.artist) {
-                                it.copy(isFavorite = !it.isFavorite)
-                            } else {
-                                it
-                            }
-                        }
+                    SongItem(song = song) {
+                        viewModel.toggleFavorite(song)
                     }
                 }
             }
         }
     }
 }
-
-data class Song(
-    val title: String,
-    val artist: String,
-    val imageRes: Int,
-    var isFavorite: Boolean = false // This needs to be 'var' if you want to modify it directly
-)
 
 @Composable
 fun SongItem(song: Song, onHeartClick: () -> Unit) {

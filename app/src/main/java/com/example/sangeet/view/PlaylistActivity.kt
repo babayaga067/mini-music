@@ -1,17 +1,15 @@
 package com.example.sangeet.view
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,24 +19,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-
-class PlaylistActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-           PlaylistScreen()
-        }
-    }
-}
+import com.example.sangeet.component.BottomNavigationBar
 
 @Composable
-fun PlaylistScreen() {
-    val gradient = Brush.verticalGradient(
-        colors = listOf(Color(0xFF240046), Color(0xFF5A189A))
-    )
+fun PlaylistScreen(navController: NavController) {
+    val navBackStackEntry = navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry.value?.destination?.route ?: ""
+    val gradient = Brush.verticalGradient(listOf(Color(0xFF240046), Color(0xFF5A189A)))
+
+    var showDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -58,7 +51,36 @@ fun PlaylistScreen() {
             Spacer(modifier = Modifier.height(80.dp))
         }
 
-        BottomNavigationBar()
+        // ✅ Floating Action Button
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            FloatingActionButton(
+                onClick = { showDialog = true },
+                containerColor = Color(0xFF9D4EDD),
+                contentColor = Color.White
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Create Playlist")
+            }
+        }
+
+        // ✅ Bottom Navigation
+        BottomNavigationBar(navController = navController, currentRoute = currentRoute)
+
+        // ✅ Dialog
+        if (showDialog) {
+            CreatePlaylistDialog(
+                onDismiss = { showDialog = false },
+                onCreate = { playlistName ->
+                    showDialog = false
+                    // TODO: Save playlist to backend or local list
+                    println("Created playlist: $playlistName")
+                }
+            )
+        }
     }
 }
 
@@ -96,12 +118,11 @@ fun PlaylistsSection() {
     }
 
     Spacer(modifier = Modifier.height(12.dp))
-    //spacer
 
     val playlists = listOf(
-        Pair("Clear Mind", "https://i.imgur.com/1Yc9yOE.png"),
-        Pair("Sound of Nature", "https://i.imgur.com/2Kyj3cF.png"),
-        Pair("Relax Songs", "https://i.imgur.com/X9tD1Ad.png")
+        "Clear Mind" to "https://i.imgur.com/1Yc9yOE.png",
+        "Sound of Nature" to "https://i.imgur.com/2Kyj3cF.png",
+        "Relax Songs" to "https://i.imgur.com/X9tD1Ad.png"
     )
 
     Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
@@ -129,7 +150,7 @@ fun PlaylistsSection() {
         }
     }
 }
-//Composable
+
 @Composable
 fun LikedSongsSection() {
     Text("Liked Songs", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
@@ -144,8 +165,8 @@ fun LikedSongsSection() {
     )
 
     Column {
-        songs.forEach {
-            RecentlyPlayedItem(title = it.first, artist = it.second, imageUrl = it.third)
+        songs.forEach { (title, artist, imageUrl) ->
+            RecentlyPlayedItem(title = title, artist = artist, imageUrl = imageUrl)
             Spacer(modifier = Modifier.height(10.dp))
         }
     }
@@ -176,8 +197,7 @@ fun RecentlyPlayedItem(title: String, artist: String, imageUrl: String) {
         }
 
         Icon(
-            //Icon
-            imageVector = Icons.Default.FavoriteBorder,
+            imageVector = Icons.Outlined.FavoriteBorder,
             contentDescription = null,
             tint = Color.White
         )
@@ -185,28 +205,37 @@ fun RecentlyPlayedItem(title: String, artist: String, imageUrl: String) {
 }
 
 @Composable
-fun BottomNavigationBar1() {
-    //modifier
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-        NavigationBar(containerColor = Color(0xFF3C096C)) {
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                label = { Text("Home") },
-                selected = false,
-                onClick = {}
+fun CreatePlaylistDialog(
+    onDismiss: () -> Unit,
+    onCreate: (String) -> Unit
+) {
+    var playlistName by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (playlistName.isNotBlank()) onCreate(playlistName)
+                }
+            ) {
+                Text("Create")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        },
+        title = { Text("New Playlist") },
+        text = {
+            TextField(
+                value = playlistName,
+                onValueChange = { playlistName = it },
+                placeholder = { Text("Enter playlist name") },
+                singleLine = true
             )
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.Search, contentDescription = null) },
-                label = { Text("Search") },
-                selected = false,
-                onClick = {}
-            )
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.LibraryMusic, contentDescription = null) },
-                label = { Text("Your Library") },
-                selected = true,
-                onClick = {}
-            )
-        }
-    }
+        },
+        containerColor = Color.White
+    )
 }

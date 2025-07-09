@@ -13,4 +13,6 @@
     <string name="title_activity_playing_now">PlayingNowActivity</string>
     <string name="title_activity_playlist">PlaylistActivity</string>
     <string name="title_activity_search">SearchActivity</string>
+    <string name="title_activity_song_item">SongItem</string>
+    <string name="title_activity_bottom_navigationbar">BottomNavigationbar</string>
 </resources>

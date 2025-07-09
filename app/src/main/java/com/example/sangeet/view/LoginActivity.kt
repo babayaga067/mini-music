@@ -19,20 +19,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.sangeet.repository.UserRepositoryImpl
 import com.example.sangeet.viewmodel.UserViewModel
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(
+    navController: NavController,
+    userViewModel: UserViewModel
+) {
     val gradient = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFF4A004A),
-            Color(0xFF1C0038)
-        )
+        colors = listOf(Color(0xFF4A004A), Color(0xFF1C0038))
     )
-
-    val repo = remember { UserRepositoryImpl() }
-    val userViewModel = remember { UserViewModel(repo) }
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -81,7 +77,7 @@ fun LoginScreen(navController: NavController) {
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Phone Number / Email") },
+                label = { Text("Email") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -127,11 +123,16 @@ fun LoginScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    userViewModel.login(email, password) { success, message ->
-                        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                        if (success) {
-                            navController.navigate("dashboard") {
-                                popUpTo("login") { inclusive = true }
+                    val trimmedEmail = email.trim()
+                    if (trimmedEmail.isEmpty() || password.isEmpty()) {
+                        Toast.makeText(context, "Please enter email and password", Toast.LENGTH_SHORT).show()
+                    } else {
+                        userViewModel.login(trimmedEmail, password) { success, message ->
+                            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                            if (success) {
+                                navController.navigate("dashboard") {
+                                    popUpTo("login") { inclusive = true }
+                                }
                             }
                         }
                     }
@@ -149,7 +150,13 @@ fun LoginScreen(navController: NavController) {
             Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
                 Text("Don't have an Account?", color = Color.White)
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Sign up", color = Color.Red, fontWeight = FontWeight.Bold)
+                TextButton(onClick = {
+                    navController.navigate("register") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                }) {
+                    Text("Sign up", color = Color.Red, fontWeight = FontWeight.Bold)
+                }
             }
         }
     }

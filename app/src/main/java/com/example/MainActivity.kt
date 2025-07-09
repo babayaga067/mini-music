@@ -1,4 +1,4 @@
-package com.example.sangeet
+package com.example
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -6,73 +6,48 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.sangeet.component.SplashScreen
-
+import com.example.sangeet.navigation.AppNavGraph
+import com.example.sangeet.repository.UserRepositoryImpl
 import com.example.sangeet.ui.theme.SangeetTheme
-import com.example.sangeet.view.DashboardScreen
-import com.example.sangeet.view.LoginScreen
-import com.example.sangeet.view.PlaylistScreen
-import com.example.sangeet.view.SearchScreen
+import com.example.sangeet.viewmodel.SongViewModel
+import com.example.sangeet.viewmodel.UserViewModel
+import io.appwrite.Client
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //  Initialize App write Client
+        val appwriteClient = Client(this)
+            .setEndpoint("https://cloud.appwrite.io/v1") // Replace with your endpoint
+            .setProject("your-project-id")               // Replace with your project ID
+
+        //  Create Repositories and ViewModels
+        val userRepo = UserRepositoryImpl(
+            client = appwriteClient,
+            databaseId = "your-database-id",             // Replace with your DB ID
+            collectionId = "your-user-collection-id"     // Replace with your collection ID
+        )
+        val userViewModel = UserViewModel(userRepo)
+        val songViewModel = SongViewModel(appwriteClient)
+
         setContent {
             SangeetTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation()
+                    val navController = rememberNavController()
+                    AppNavGraph(
+                        navController = navController,
+                        userViewModel = userViewModel,
+                        songViewModel = songViewModel,
+                        client = appwriteClient
+                    )
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun AppNavigation() {
-    val navController = rememberNavController()
-
-    NavHost(
-        navController = navController,
-        startDestination = "splash"
-    ) {
-        composable("splash") {
-            SplashScreen(navController = navController)
-        }
-
-        composable("login") {
-            LoginScreen(navController = navController)
-        }
-
-        composable("dashboard") {
-            DashboardScreen(navController = navController)
-        }
-
-        composable("search") {
-            SearchScreen(navController = navController)
-        }
-
-        composable("playlist") {
-            PlaylistScreen(navController = navController)
-        }
-
-        composable("playing_now") {
-            PlayingNowScreen(navController = navController)
-        }
-
-        composable("menu") {
-            MenuScreen(navController = navController)
-        }
-
-        composable("library") {
-            LibraryScreen(navController = navController)
         }
     }
 }

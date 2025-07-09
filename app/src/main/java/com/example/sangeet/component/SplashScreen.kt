@@ -12,27 +12,33 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sangeet.R
-import com.google.firebase.auth.FirebaseAuth
+import io.appwrite.Client
+import io.appwrite.exceptions.AppwriteException
+import io.appwrite.services.Account
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(navController: NavController) {
-    // Navigate after delay
+fun SplashScreen(
+    navController: NavController,
+    client: Client // ✅ Pass Appwrite client from MainActivity
+) {
+    val account = remember { Account(client) }
+
     LaunchedEffect(Unit) {
-        delay(2000) // 2-second splash duration
-        val user = FirebaseAuth.getInstance().currentUser
-        if (user != null) {
+        delay(2000) // Splash duration
+
+        try {
+            account.get() // Try to fetch current user
             navController.navigate("dashboard") {
                 popUpTo("splash") { inclusive = true }
             }
-        } else {
+        } catch (e: AppwriteException) {
             navController.navigate("login") {
                 popUpTo("splash") { inclusive = true }
             }
         }
     }
 
-    // Splash UI
     Scaffold { padding ->
         Box(
             modifier = Modifier

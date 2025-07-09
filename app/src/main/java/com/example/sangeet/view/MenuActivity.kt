@@ -1,9 +1,5 @@
 package com.example.sangeet.view
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,22 +12,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
-
-class MenuActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            MenuScreen()
-        }
-    }
-}
+import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.sangeet.component.BottomNavigationBar
 
 @Composable
-fun MenuScreen() {
+fun MenuScreen(navController: NavController) {
     val gradient = Brush.verticalGradient(
-        colors = listOf(Color(0xFF4B0082), Color(0xFF8A2BE2)) // Deep purple gradient
+        colors = listOf(Color(0xFF4B0082), Color(0xFF8A2BE2))
     )
+    val navBackStackEntry = navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry.value?.destination?.route ?: ""
 
     Box(
         modifier = Modifier
@@ -41,14 +32,18 @@ fun MenuScreen() {
         Column(modifier = Modifier.padding(16.dp)) {
             TopBar()
             Spacer(modifier = Modifier.height(32.dp))
-            Text("Welcome  back!", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text("Welcome back!", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(24.dp))
-            MenuButton("Home")
-            MenuButton("Profile")
-            MenuButton("Help and Support")
+            MenuButton("Home") { navController.navigate("dashboard") }
+            MenuButton("Profile") { navController.navigate("profile") }
+            MenuButton("Help and Support") { navController.navigate("support") }
         }
 
-        BottomNavBar(Modifier.align(Alignment.BottomCenter))
+        BottomNavigationBar(
+            navController = navController,
+            currentRoute = currentRoute,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 
@@ -63,19 +58,19 @@ fun TopBar() {
     ) {
         Icon(Icons.Default.Menu, contentDescription = null, tint = Color.White)
         Text("Menu", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.width(24.dp)) // For symmetry with menu icon
+        Spacer(modifier = Modifier.width(24.dp)) // For symmetry
     }
 }
 
 @Composable
-fun MenuButton(text: String) {
+fun MenuButton(text: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Color.White.copy(alpha = 0.2f))
-            .clickable { }
+            .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Row(
@@ -86,32 +81,5 @@ fun MenuButton(text: String) {
             Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color.White)
         }
-    }
-}
-
-@Composable
-fun BottomNavBar(modifier: Modifier = Modifier) {
-    NavigationBar(
-        modifier = modifier,
-        containerColor = Color(0x55000000)
-    ) {
-        NavigationBarItem(
-            selected = false,
-            onClick = {},
-            icon = { Icon(Icons.Default.Home, contentDescription = null) },
-            label = { Text("Home") }
-        )
-        NavigationBarItem(
-            selected = false,
-            onClick = {},
-            icon = { Icon(Icons.Default.Search, contentDescription = null) },
-            label = { Text("Search") }
-        )
-        NavigationBarItem(
-            selected = true,
-            onClick = {},
-            icon = { Icon(Icons.Default.LibraryMusic, contentDescription = null) },
-            label = { Text("Your Library") }
-        )
     }
 }
