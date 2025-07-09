@@ -1,0 +1,8 @@
+[33meea3680[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/sarika[m[33m)[m HEAD@{0}: pull origin sarika --rebase (start): checkout eea3680a89a8172f9fa6f961860a97ee99f2fdeb
+[33me829e64[m[33m ([m[1;32msarika[m[33m)[m HEAD@{1}: commit: Add feature
+[33m0fcdb5c[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{2}: checkout: moving from main to sarika
+[33m0fcdb5c[m[33m ([m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m)[m HEAD@{3}: pull origin main --allow-unrelated-histories: Merge made by the 'ort' strategy.
+[33ma37fa4a[m HEAD@{4}: reset: moving to HEAD
+[33ma37fa4a[m HEAD@{5}: pull origin main --allow-unrelated-histories: updating HEAD
+[33ma37fa4a[m HEAD@{6}: Branch: renamed refs/heads/master to refs/heads/main
+[33ma37fa4a[m HEAD@{8}: commit (initial): Initial commit

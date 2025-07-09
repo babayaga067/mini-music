@@ -1,47 +1,210 @@
 package com.example.musicapp
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.musicapp.ui.theme.MusicAppTheme
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 
-class OverflowActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            MusicAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting5(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+@Composable
+fun PlaylistScreen() {
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFF240046), Color(0xFF5A189A))
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(brush = gradient)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            TopAppBarSection()
+            Spacer(modifier = Modifier.height(20.dp))
+            PlaylistsSection()
+            Spacer(modifier = Modifier.height(20.dp))
+            LikedSongsSection()
+            Spacer(modifier = Modifier.height(80.dp))
+        }
+
+        BottomNavigationBar()
+    }
+}
+
+@Composable
+fun BottomNavigationBar() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        NavigationBar(
+            containerColor = Color(0xFF5A189D) // lighter than 0xFF3C096D
+        ) {
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Home, contentDescription = null, tint = Color.White) },
+                label = { Text("Home", color = Color.White) },
+                selected = false,
+                onClick = {}
+            )
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.White) },
+                label = { Text("Search", color = Color.White) },
+                selected = false,
+                onClick = {}
+            )
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.LibraryMusic, contentDescription = null, tint = Color.White) },
+                label = { Text("Your Library", color = Color.White) },
+                selected = true,
+                onClick = {}
+            )
+        }
+    }
+
+}
+
+@Composable
+fun TopAppBarSection() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column {
+            Text("Hi Eva,", color = Color.White, fontSize = 20.sp)
+            Text("Good Afternoon", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        }
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("E", color = Color.Black, fontWeight = FontWeight.Bold)
         }
     }
 }
 
 @Composable
-fun Greeting5(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
+fun PlaylistsSection() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("Playlists", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
+    }
+
+    Spacer(modifier = Modifier.height(12.dp))
+    //spacer
+
+    val playlists = listOf(
+        Pair("Clear Mind", "https://i.imgur.com/1Yc9yOE.png"),
+        Pair("Sound of Nature", "https://i.imgur.com/2Kyj3cF.png"),
+        Pair("Relax Songs", "https://i.imgur.com/X9tD1Ad.png")
     )
+
+    Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
+        playlists.forEach { (title, url) ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .width(100.dp)
+            ) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(url)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = title,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.Gray)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(title, color = Color.White, fontSize = 14.sp)
+            }
+        }
+    }
+}
+//Composable
+@Composable
+fun LikedSongsSection() {
+    Text("Liked Songs", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    Spacer(modifier = Modifier.height(12.dp))
+
+    val songs = listOf(
+        Triple("WILDFLOWER", "Billie Eilish", "https://i.imgur.com/0Z8Z1KZ.png"),
+        Triple("Farkanna Hola", "John Chaming Rai", "https://i.imgur.com/YBBjDna.png"),
+        Triple("Ghost", "Justin Bieber", "https://i.imgur.com/oe8mUML.png"),
+        Triple("Badal Sari", "Swar x John Rai", "https://i.imgur.com/dCm8Exx.png"),
+        Triple("Dhairya", "Sajjan Raj Vaidya", "https://i.imgur.com/h3jHv9I.png")
+    )
+
+    Column {
+        songs.forEach {
+            RecentlyPlayedItem(title = it.first, artist = it.second, imageUrl = it.third)
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+    }
+}
+
+@Composable
+fun RecentlyPlayedItem(title: String, artist: String, imageUrl: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(imageUrl)
+                .crossfade(true)
+                .build(),
+            contentDescription = title,
+            modifier = Modifier
+                .size(50.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color.Gray)
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, color = Color.White, fontWeight = FontWeight.Medium)
+            Text(artist, color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
+        }
+
+        Icon(
+            //Icon
+            imageVector = Icons.Default.FavoriteBorder,
+            contentDescription = null,
+            tint = Color.White
+        )
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview5() {
-    MusicAppTheme {
-        Greeting5("Android")
-    }
+fun PreviewMyScreen1() {
+    PlaylistScreen()
 }

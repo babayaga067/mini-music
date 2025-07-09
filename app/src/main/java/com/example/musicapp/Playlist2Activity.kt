@@ -91,13 +91,19 @@ fun Playlist2Body() {
             Spacer(modifier = Modifier.height(24.dp))
 
             // Playlists Section
-            Text("Playlists", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Playlists", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
+            }
 
             LazyRow {
                 items(playlists) { playlist ->
                     PlaylistCard(playlist)
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                 }
             }
 
@@ -153,17 +159,40 @@ fun PlaylistCard(playlist: Playlist) {
 
 @Composable
 fun BottomNav() {
-    Row(
+    val icons = listOf(
+        Icons.Default.Home,
+        Icons.Default.Search,
+        Icons.Default.LibraryMusic
+    )
+
+    val labels = listOf("Home", "Search", "Library")
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceAround
+            .background(
+                color = Color.White.copy(alpha = 0.2f) // see-through white box
+            )
+            .padding(vertical = 12.dp)
     ) {
-        Icon(imageVector = Icons.Default.Home, contentDescription = "Home", tint = Color.White)
-        Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White)
-        Icon(imageVector = Icons.Default.LibraryMusic, contentDescription = "Library", tint = Color.White)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            icons.forEachIndexed { index, icon ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = labels[index],
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(text = labels[index], color = Color.White)
+                }
+            }
+        }
     }
-
 }
 @Preview(showBackground = true)
 @Composable
