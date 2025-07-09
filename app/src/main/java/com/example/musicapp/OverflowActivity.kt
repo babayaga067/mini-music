@@ -1,210 +1,116 @@
 package com.example.musicapp
 
-import androidx.compose.foundation.*
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+
+class OverflowActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            OverflowScreen()
+        }
+    }
+}
 
 @Composable
-fun PlaylistScreen() {
-    val gradient = Brush.verticalGradient(
-        colors = listOf(Color(0xFF240046), Color(0xFF5A189A))
-    )
-
+fun OverflowScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(brush = gradient)
     ) {
+        // Background Image
+        Image(
+            painter = painterResource(R.drawable.background),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Foreground Content
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState())
         ) {
-            TopAppBarSection()
-            Spacer(modifier = Modifier.height(20.dp))
-            PlaylistsSection()
-            Spacer(modifier = Modifier.height(20.dp))
-            LikedSongsSection()
-            Spacer(modifier = Modifier.height(80.dp))
-        }
-
-        BottomNavigationBar()
-    }
-}
-
-@Composable
-fun BottomNavigationBar() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        NavigationBar(
-            containerColor = Color(0xFF5A189D) // lighter than 0xFF3C096D
-        ) {
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.Home, contentDescription = null, tint = Color.White) },
-                label = { Text("Home", color = Color.White) },
-                selected = false,
-                onClick = {}
-            )
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.White) },
-                label = { Text("Search", color = Color.White) },
-                selected = false,
-                onClick = {}
-            )
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.LibraryMusic, contentDescription = null, tint = Color.White) },
-                label = { Text("Your Library", color = Color.White) },
-                selected = true,
-                onClick = {}
-            )
-        }
-    }
-
-}
-
-@Composable
-fun TopAppBarSection() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Column {
-            Text("Hi Eva,", color = Color.White, fontSize = 20.sp)
-            Text("Good Afternoon", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        }
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .background(Color.White),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("E", color = Color.Black, fontWeight = FontWeight.Bold)
-        }
-    }
-}
-
-@Composable
-fun PlaylistsSection() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text("Playlists", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
-    }
-
-    Spacer(modifier = Modifier.height(12.dp))
-    //spacer
-
-    val playlists = listOf(
-        Pair("Clear Mind", "https://i.imgur.com/1Yc9yOE.png"),
-        Pair("Sound of Nature", "https://i.imgur.com/2Kyj3cF.png"),
-        Pair("Relax Songs", "https://i.imgur.com/X9tD1Ad.png")
-    )
-
-    Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
-        playlists.forEach { (title, url) ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .padding(end = 16.dp)
-                    .width(100.dp)
+            // Top Bar
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(url)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = title,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.Gray)
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu",
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(title, color = Color.White, fontSize = 14.sp)
+                Spacer(modifier = Modifier.width(16.dp))
+                Text("Menu", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Account Overview
+            Text("Help and Support", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Spacer(modifier = Modifier.height(12.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+                    .padding(12.dp)
+            ) {
+                Text("Account Overview", color = Color.White, fontWeight = FontWeight.Medium)
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // About Us
+            Text("About Us", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "This app appears to be a full-featured music streaming platform, possibly targeting a youthful audience with a clean and vibrant UI. It includes all standard features expected from a music app: playback, search, playlists, profile, and a smooth onboarding flow.",
+                color = Color.White,
+                fontSize = 14.sp
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Contact
+            Text("Further More Inquiry", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(6.dp))
+                    .padding(10.dp)
+            ) {
+                Text("sangeet@gmail.com", color = Color.White)
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            BottomNav()
         }
     }
 }
-//Composable
-@Composable
-fun LikedSongsSection() {
-    Text("Liked Songs", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-    Spacer(modifier = Modifier.height(12.dp))
-
-    val songs = listOf(
-        Triple("WILDFLOWER", "Billie Eilish", "https://i.imgur.com/0Z8Z1KZ.png"),
-        Triple("Farkanna Hola", "John Chaming Rai", "https://i.imgur.com/YBBjDna.png"),
-        Triple("Ghost", "Justin Bieber", "https://i.imgur.com/oe8mUML.png"),
-        Triple("Badal Sari", "Swar x John Rai", "https://i.imgur.com/dCm8Exx.png"),
-        Triple("Dhairya", "Sajjan Raj Vaidya", "https://i.imgur.com/h3jHv9I.png")
-    )
-
-    Column {
-        songs.forEach {
-            RecentlyPlayedItem(title = it.first, artist = it.second, imageUrl = it.third)
-            Spacer(modifier = Modifier.height(10.dp))
-        }
-    }
-}
-
-@Composable
-fun RecentlyPlayedItem(title: String, artist: String, imageUrl: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(imageUrl)
-                .crossfade(true)
-                .build(),
-            contentDescription = title,
-            modifier = Modifier
-                .size(50.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color.Gray)
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(title, color = Color.White, fontWeight = FontWeight.Medium)
-            Text(artist, color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
-        }
-
-        Icon(
-            //Icon
-            imageVector = Icons.Default.FavoriteBorder,
-            contentDescription = null,
-            tint = Color.White
-        )
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
-fun PreviewMyScreen1() {
-    PlaylistScreen()
+fun PreviewMyMenu() {
+    OverflowScreen()
 }

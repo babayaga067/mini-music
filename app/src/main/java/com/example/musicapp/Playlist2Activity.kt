@@ -68,11 +68,19 @@ fun Playlist2Body() {
 
             // Top Bar
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu",
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+
                 Column {
-                    Text("Hi Eva,", color = Color.White, fontSize = 18.sp)
+                    Text("Hi Eva,", color = Color.White, fontSize = 16.sp)
                     Text("Good Afternoon", color = Color.White, fontSize = 14.sp)
                 }
                 Spacer(modifier = Modifier.weight(1f))
