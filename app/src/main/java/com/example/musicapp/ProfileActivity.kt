@@ -22,6 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.Search
 
 class ProfileActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -141,8 +144,20 @@ fun ProfileScreen() {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            BottomNav()
         }
+    }
+}
+@Composable
+fun BottomNav() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        Icon(imageVector = Icons.Default.Home, contentDescription = "Home", tint = Color.White)
+        Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White)
+        Icon(imageVector = Icons.Default.LibraryMusic, contentDescription = "Library", tint = Color.White)
     }
 }
 @Preview(showBackground = true)
