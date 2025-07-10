@@ -149,17 +149,36 @@ fun ProfileScreen() {
 }
 @Composable
 fun BottomNav() {
-    Row(
+    val icons = listOf(
+        Icons.Default.Home,
+        Icons.Default.Search,
+        Icons.Default.LibraryMusic
+    )
+
+    val labels = listOf("Home", "Search", "Library")
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceAround
+            .background(Color.White.copy(alpha = 0.2f))
+            .padding(vertical = 12.dp)
     ) {
-        Icon(imageVector = Icons.Default.Home, contentDescription = "Home", tint = Color.White)
-        Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White)
-        Icon(imageVector = Icons.Default.LibraryMusic, contentDescription = "Library", tint = Color.White)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            icons.forEachIndexed { index, icon ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(icon, contentDescription = labels[index], tint = Color.White)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(labels[index], color = Color.White, fontSize = 12.sp)
+                }
+            }
+        }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewProfileScreen() {

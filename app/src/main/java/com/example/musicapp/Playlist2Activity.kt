@@ -47,30 +47,27 @@ fun Playlist2Body() {
 
     val favouriteSongs = remember {
         mutableStateListOf(
-            Song("WILDFLOWER", "Billie Eilish", R.drawable.wildflower,true),
-            Song("Farkanna Hola", "John Chaming Rai", R.drawable.farkanna,true),
-            Song("Ghost", "Justin Bieber", R.drawable.ghost,true),
-            Song("Badal Sari", "Swar x John Rai", R.drawable.badal,true),
-            Song("Dhairya", "Reeze ft. Vekari", R.drawable.dhairya,true)
+            Song("WILDFLOWER", "Billie Eilish", R.drawable.wildflower, true),
+            Song("Farkanna Hola", "John Chaming Rai", R.drawable.farkanna, true),
+            Song("Ghost", "Justin Bieber", R.drawable.ghost, true),
+            Song("Badal Sari", "Swar x John Rai", R.drawable.badal, true),
+            Song("Dhairya", "Reeze ft. Vekari", R.drawable.dhairya, true)
         )
     }
+
     Image(
         painterResource(R.drawable.background),
         contentDescription = null,
         modifier = Modifier.fillMaxSize()
     )
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
+
+    Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Column(modifier = Modifier.fillMaxSize()) {
 
             // Top Bar
             Row(
-<<<<<<< HEAD
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Default.Menu,
@@ -79,16 +76,8 @@ fun Playlist2Body() {
                     modifier = Modifier.size(28.dp)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-
-                Column {
-                    Text("Hi Eva,", color = Color.White, fontSize = 16.sp)
-=======
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
                 Column {
                     Text("Hi Eva,", color = Color.White, fontSize = 18.sp)
->>>>>>> e829e64 (Add feature)
                     Text("Good Afternoon", color = Color.White, fontSize = 14.sp)
                 }
                 Spacer(modifier = Modifier.weight(1f))
@@ -107,7 +96,6 @@ fun Playlist2Body() {
             Spacer(modifier = Modifier.height(24.dp))
 
             // Playlists Section
-<<<<<<< HEAD
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -116,19 +104,13 @@ fun Playlist2Body() {
                 Text("Playlists", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Icon(Icons.Default.ArrowForward, contentDescription = null, tint = Color.White)
             }
-=======
-            Text("Playlists", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+
             Spacer(modifier = Modifier.height(12.dp))
->>>>>>> e829e64 (Add feature)
 
             LazyRow {
                 items(playlists) { playlist ->
                     PlaylistCard(playlist)
-<<<<<<< HEAD
-                    Spacer(modifier = Modifier.width(6.dp))
-=======
                     Spacer(modifier = Modifier.width(12.dp))
->>>>>>> e829e64 (Add feature)
                 }
             }
 
@@ -146,7 +128,6 @@ fun Playlist2Body() {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Bottom Navigation
             BottomNav()
         }
     }
@@ -182,57 +163,7 @@ fun PlaylistCard(playlist: Playlist) {
     }
 }
 
-@Composable
-fun BottomNav() {
-<<<<<<< HEAD
-    val icons = listOf(
-        Icons.Default.Home,
-        Icons.Default.Search,
-        Icons.Default.LibraryMusic
-    )
 
-    val labels = listOf("Home", "Search", "Library")
-
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = Color.White.copy(alpha = 0.2f) // see-through white box
-            )
-            .padding(vertical = 12.dp)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            icons.forEachIndexed { index, icon ->
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = labels[index],
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = labels[index], color = Color.White)
-                }
-            }
-        }
-    }
-=======
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceAround
-    ) {
-        Icon(imageVector = Icons.Default.Home, contentDescription = "Home", tint = Color.White)
-        Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White)
-        Icon(imageVector = Icons.Default.LibraryMusic, contentDescription = "Library", tint = Color.White)
-    }
-
->>>>>>> e829e64 (Add feature)
-}
 @Preview(showBackground = true)
 @Composable
 fun PreviewMyScreen() {
