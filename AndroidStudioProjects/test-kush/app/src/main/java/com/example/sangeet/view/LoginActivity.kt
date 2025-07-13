@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.sangeet.viewmodel.UserViewModel
+import com.example.sangeet.navigation.Screen
 
 @Composable
 fun LoginScreen(
@@ -29,11 +30,14 @@ fun LoginScreen(
     userViewModel: UserViewModel
 ) {
     val context = LocalContext.current
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    val gradient = Brush.verticalGradient(listOf(Color(0xFF4A004A), Color(0xFF1C0038)))
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFF4A004A), Color(0xFF1C0038))
+    )
 
     Box(
         modifier = Modifier
@@ -46,34 +50,39 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxSize()
         ) {
+            // App Branding
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Filled.MusicNote, contentDescription = null, tint = Color.Cyan, modifier = Modifier.size(32.dp))
+                Icon(
+                    imageVector = Icons.Filled.MusicNote,
+                    contentDescription = "App Logo",
+                    tint = Color.Cyan,
+                    modifier = Modifier.size(32.dp)
+                )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Sangeet", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(
+                    text = "Sangeet",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
             }
 
             Spacer(modifier = Modifier.height(48.dp))
 
+            // Email Input
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { email = it.trimStart() },
                 label = { Text("Email") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.LightGray,
-                    cursorColor = Color.White,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
-                ),
+                colors = loginFieldColors(),
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Password Input
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -83,73 +92,67 @@ fun LoginScreen(
                 trailingIcon = {
                     val icon = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility
                     Icon(
-                        icon,
-                        contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                        imageVector = icon,
+                        contentDescription = if (passwordVisible) "Hide Password" else "Show Password",
                         tint = Color.White,
                         modifier = Modifier.clickable { passwordVisible = !passwordVisible }
                     )
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.LightGray,
-                    focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.LightGray,
-                    cursorColor = Color.White,
-                    focusedTextColor = Color.White,
-                    unfocusedTextColor = Color.White
-                ),
+                colors = loginFieldColors(),
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
+            // Forgot Password
             Text(
-                "Forgot Password?",
+                text = "Forgot Password?",
                 fontSize = 12.sp,
                 color = Color.White,
                 modifier = Modifier
                     .align(Alignment.End)
                     .clickable {
                         val trimmedEmail = email.trim()
-                        if (trimmedEmail.isEmpty()) {
-                            Toast.makeText(context, "Please enter your email first", Toast.LENGTH_SHORT).show()
-                        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches()) {
-                            Toast.makeText(context, "Invalid email format", Toast.LENGTH_SHORT).show()
-                        } else {
-                            userViewModel.forgetPassword(trimmedEmail) { success, message ->
-                                Toast.makeText(context, message, Toast.LENGTH_LONG).show()
-                            }
+                        when {
+                            trimmedEmail.isEmpty() ->
+                                Toast.makeText(context, "Please enter your email first", Toast.LENGTH_SHORT).show()
+
+                            !android.util.Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches() ->
+                                Toast.makeText(context, "Invalid email format", Toast.LENGTH_SHORT).show()
+
+                            else ->
+                                userViewModel.forgetPassword(trimmedEmail) { success, message ->
+                                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                                }
                         }
                     }
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // Login Button
             Button(
                 onClick = {
                     val trimmedEmail = email.trim()
                     val trimmedPassword = password.trim()
 
                     when {
-                        trimmedEmail.isEmpty() || trimmedPassword.isEmpty() -> {
+                        trimmedEmail.isEmpty() || trimmedPassword.isEmpty() ->
                             Toast.makeText(context, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                        }
 
-                        !android.util.Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches() -> {
+                        !android.util.Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches() ->
                             Toast.makeText(context, "Invalid email format", Toast.LENGTH_SHORT).show()
-                        }
 
-                        else -> {
+                        else ->
                             userViewModel.login(trimmedEmail, trimmedPassword) { success, message ->
                                 Toast.makeText(context, message, Toast.LENGTH_LONG).show()
                                 if (success) {
-                                    navController.navigate("dashboard") {
-                                        popUpTo("login") { inclusive = true }
+                                    navController.navigate(Screen.Dashboard.route) {
+                                        popUpTo(Screen.Login.route) { inclusive = true }
                                     }
                                 }
                             }
-                        }
                     }
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8E24AA)),
@@ -162,17 +165,28 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth()) {
-                Text("Don't have an account?", color = Color.White)
-                Spacer(modifier = Modifier.width(4.dp))
+            // Register Redirect
+            Row {
+                Text("Don’t have an account? ", color = Color.White)
                 TextButton(onClick = {
-                    navController.navigate("register") {
-                        popUpTo("login") { inclusive = true }
+                    navController.navigate(Screen.Register.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 }) {
-                    Text("Sign up", color = Color(0xFFE91E63), fontWeight = FontWeight.Bold)
+                    Text("Sign Up", color = Color.Cyan)
                 }
             }
         }
     }
 }
+
+@Composable
+fun loginFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedBorderColor = Color.White,
+    unfocusedBorderColor = Color.LightGray,
+    focusedLabelColor = Color.White,
+    unfocusedLabelColor = Color.LightGray,
+    cursorColor = Color.White,
+    focusedTextColor = Color.White,
+    unfocusedTextColor = Color.White
+)

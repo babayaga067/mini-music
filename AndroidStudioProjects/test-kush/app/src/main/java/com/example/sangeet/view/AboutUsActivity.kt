@@ -3,6 +3,8 @@ package com.example.sangeet.view
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -34,7 +36,10 @@ fun AboutUsScreen(navController: NavController) {
                 title = { Text("About Us") },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Navigate back"
+                        )
                     }
                 }
             )
@@ -49,13 +54,14 @@ fun AboutUsScreen(navController: NavController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(20.dp),
+                    .padding(20.dp)
+                    .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start
             ) {
                 Image(
                     painter = painterResource(R.drawable.logo),
-                    contentDescription = "Sangeet Logo",
+                    contentDescription = "Sangeet logo",
                     modifier = Modifier
                         .size(90.dp)
                         .padding(bottom = 12.dp)
@@ -95,11 +101,12 @@ fun AboutUsScreen(navController: NavController) {
                     Text(
                         text = contactEmail,
                         modifier = Modifier.padding(12.dp),
-                        color = Color.White
+                        color = Color.White,
+                        fontSize = 14.sp
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 Text(
                     text = "© ${java.time.Year.now()} Sangeet Inc.",

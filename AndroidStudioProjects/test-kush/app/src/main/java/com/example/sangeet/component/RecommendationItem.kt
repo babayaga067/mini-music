@@ -1,6 +1,7 @@
 package com.example.sangeet.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,7 +29,8 @@ fun RecommendationItem(
     music: MusicModel,
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit,
-    onAddToPlaylist: () -> Unit
+    onAddToPlaylist: () -> Unit,
+    onNavigate: () -> Unit // 🔗 New parameter for navigation
 ) {
     val context = LocalContext.current
 
@@ -37,6 +39,7 @@ fun RecommendationItem(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
+            .clickable(onClick = onNavigate) // 🔗 Enables full-row tap for navigation
     ) {
         Box(
             modifier = Modifier
@@ -51,7 +54,7 @@ fun RecommendationItem(
                         .data(if (music.imageUrl.startsWith("/")) File(music.imageUrl) else music.imageUrl)
                         .crossfade(true)
                         .build(),
-                    contentDescription = music.musicName,
+                    contentDescription = "Cover image for ${music.musicName}",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                     error = painterResource(R.drawable.ic_launcher_foreground),
@@ -60,7 +63,7 @@ fun RecommendationItem(
             } else {
                 Icon(
                     Icons.Default.MusicNote,
-                    contentDescription = null,
+                    contentDescription = "Default music icon",
                     tint = Color(0xFFE91E63),
                     modifier = Modifier.size(24.dp)
                 )

@@ -3,10 +3,11 @@ package com.example.sangeet.utils
 import com.example.sangeet.model.*
 import com.example.sangeet.repository.*
 
-/**
- * Utility class to manage complex user relationships and operations
- * Demonstrates how the enhanced UserModel relationships work in practice
- */
+sealed class RelationshipResult {
+    data class Success(val message: String, val data: Any? = null) : RelationshipResult()
+    data class Failure(val message: String) : RelationshipResult()
+}
+
 class UserRelationshipManager(
     private val userRepository: UserRepository,
     private val favoriteRepository: FavoriteRepository,
@@ -15,85 +16,54 @@ class UserRelationshipManager(
     private val musicRepository: MusicRepository
 ) {
 
-    /**
-     * Complete workflow: User adds music to favorites
-     * This demonstrates the relationship between User, Music, and Favorites
-     */
-    fun addMusicToUserFavorites(
-        userId: String,
-        musicId: String,
-        callback: (Boolean, String) -> Unit
-    ) {
-        // Step 1: Create favorite relationship
+    fun addMusicToFavorites(userId: String, musicId: String, callback: (RelationshipResult) -> Unit) {
+        val favoriteId = generateFavoriteId()
         val favoriteModel = FavoriteModel(
-            favoriteId = generateFavoriteId(),
+            favoriteId = favoriteId,
             userId = userId,
             musicId = musicId,
             addedAt = System.currentTimeMillis()
         )
 
-        // Step 2: Add to favorites collection
-        favoriteRepository.addToFavorites(userId, musicId) { success, message ->
-            if (success) {
-                // Step 3: Update user's favorite list
-                userRepository.addFavoriteToUser(userId, favoriteModel.favoriteId) { userSuccess, userMessage ->
-                    if (userSuccess) {
-                        callback(true, "Music added to favorites successfully")
-                    } else {
-                        // Rollback: Remove from favorites if user update failed
-                        favoriteRepository.removeFromFavorites(userId, musicId) { _, _ -> }
-                        callback(false, "Failed to update user favorites: $userMessage")
-                    }
+        favoriteRepository.addToFavorites(userId, musicId) { success, msg ->
+            if (!success) return@addToFavorites callback(RelationshipResult.Failure("Favorite creation failed: $msg"))
+
+            userRepository.addFavoriteToUser(userId, favoriteId) { userSuccess, userMsg ->
+                if (userSuccess) {
+                    callback(RelationshipResult.Success("Music added to favorites"))
+                } else {
+                    favoriteRepository.removeFromFavorites(userId, musicId) { _, _ -> }
+                    callback(RelationshipResult.Failure("User update failed: $userMsg"))
                 }
-            } else {
-                callback(false, "Failed to create favorite: $message")
             }
         }
     }
 
-    /**
-     * Complete workflow: User follows an artist
-     * This demonstrates the many-to-many relationship between User and Artist
-     */
-    fun followArtist(
-        userId: String,
-        artistId: String,
-        callback: (Boolean, String) -> Unit
-    ) {
-        // Step 1: Update user's followed artists (simplified implementation)
-        // TODO: Create UserFollowArtistModel and repository if needed
-        userRepository.addFollowedArtistToUser(userId, artistId) { userSuccess, userMessage ->
-            if (userSuccess) {
-                // Step 4: Update artist's followers
-                artistRepository.followArtist(artistId) { artistSuccess, artistMessage ->
-                    if (artistSuccess) {
-                        callback(true, "Successfully followed artist")
-                    } else {
-                        // Rollback: Remove from user's followed list
-                        userRepository.removeFollowedArtistFromUser(userId, artistId) { _, _ -> }
-                        callback(false, "Failed to update artist followers: $artistMessage")
-                    }
+    fun followArtist(userId: String, artistId: String, callback: (RelationshipResult) -> Unit) {
+        userRepository.addFollowedArtistToUser(userId, artistId) { userSuccess, userMsg ->
+            if (!userSuccess) return@addFollowedArtistToUser callback(RelationshipResult.Failure("User follow failed: $userMsg"))
+
+            artistRepository.followArtist(artistId) { artistSuccess, artistMsg ->
+                if (artistSuccess) {
+                    callback(RelationshipResult.Success("Followed artist successfully"))
+                } else {
+                    userRepository.removeFollowedArtistFromUser(userId, artistId) { _, _ -> }
+                    callback(RelationshipResult.Failure("Artist update failed: $artistMsg"))
                 }
-            } else {
-                callback(false, "Failed to update user following: $userMessage")
             }
         }
     }
 
-    /**
-     * Complete workflow: User creates a playlist and adds music
-     * This demonstrates User -> Playlist -> Music relationships
-     */
     fun createPlaylistWithMusic(
         userId: String,
         playlistName: String,
         description: String,
         musicIds: List<String>,
-        callback: (Boolean, String, String?) -> Unit // success, message, playlistId
+        callback: (RelationshipResult) -> Unit
     ) {
-        // Step 1: Create playlist
+        val playlistId = generatePlaylistId()
         val playlistModel = PlaylistModel(
-            playlistId = generatePlaylistId(),
+            playlistId = playlistId,
             userId = userId,
             playlistName = playlistName,
             description = description,
@@ -101,122 +71,63 @@ class UserRelationshipManager(
             createdAt = System.currentTimeMillis()
         )
 
-        // Step 2: Add playlist to database
-        playlistRepository.createPlaylist(playlistModel) { success, message ->
-            if (success) {
-                // Step 3: Update user's playlist list
-                userRepository.addPlaylistToUser(userId, playlistModel.playlistId) { userSuccess, userMessage ->
-                    if (userSuccess) {
-                        callback(true, "Playlist created successfully", playlistModel.playlistId)
-                    } else {
-                        // Rollback: Delete playlist if user update failed
-                        playlistRepository.deletePlaylist(playlistModel.playlistId) { _, _ -> }
-                        callback(false, "Failed to update user playlists: $userMessage", null)
-                    }
+        playlistRepository.createPlaylist(playlistModel) { playlistSuccess, playlistMsg ->
+            if (!playlistSuccess) return@createPlaylist callback(RelationshipResult.Failure("Playlist creation failed: $playlistMsg"))
+
+            userRepository.addPlaylistToUser(userId, playlistId) { userSuccess, userMsg ->
+                if (userSuccess) {
+                    callback(RelationshipResult.Success("Playlist created successfully", playlistId))
+                } else {
+                    playlistRepository.deletePlaylist(playlistId) { _, _ -> }
+                    callback(RelationshipResult.Failure("User playlist update failed: $userMsg"))
                 }
-            } else {
-                callback(false, "Failed to create playlist: $message", null)
             }
         }
     }
 
-    /**
-     * Complete workflow: User uploads music
-     * This demonstrates User -> Music -> Artist relationships
-     */
     fun uploadMusicAsUser(
         userId: String,
         musicModel: MusicModel,
-        callback: (Boolean, String, String?) -> Unit // success, message, musicId
+        callback: (RelationshipResult) -> Unit
     ) {
-        // Ensure the music is linked to the user
         val updatedMusicModel = musicModel.copy(
             uploadedBy = userId,
             uploadedAt = System.currentTimeMillis()
         )
 
-        // Step 1: Add music to database
-        musicRepository.addMusic(updatedMusicModel) { success, message ->
-            if (success) {
-                // Step 2: Update user's uploaded music list
-                userRepository.addUploadedMusicToUser(userId, updatedMusicModel.musicId) { userSuccess, userMessage ->
-                    if (userSuccess) {
-                        // Step 3: Update user's upload count
-                        userRepository.incrementUserUploadCount(userId) { _, _ -> }
-                        callback(true, "Music uploaded successfully", updatedMusicModel.musicId)
-                    } else {
-                        // Rollback: Remove music if user update failed
-                        musicRepository.deleteMusic(updatedMusicModel.musicId) { _, _ -> }
-                        callback(false, "Failed to update user uploads: $userMessage", null)
-                    }
+        musicRepository.addMusic(updatedMusicModel) { musicSuccess, musicMsg ->
+            if (!musicSuccess) return@addMusic callback(RelationshipResult.Failure("Music upload failed: $musicMsg"))
+
+            userRepository.addUploadedMusicToUser(userId, updatedMusicModel.musicId) { userSuccess, userMsg ->
+                if (userSuccess) {
+                    userRepository.incrementUserUploadCount(userId) { _, _ -> }
+                    callback(RelationshipResult.Success("Music uploaded", updatedMusicModel.musicId))
+                } else {
+                    musicRepository.deleteMusic(updatedMusicModel.musicId) { _, _ -> }
+                    callback(RelationshipResult.Failure("User upload update failed: $userMsg"))
                 }
-            } else {
-                callback(false, "Failed to upload music: $message", null)
             }
         }
     }
 
-    /**
-     * Get comprehensive user profile with all relationships
-     */
-    fun getUserWithRelationships(
-        userId: String,
-        callback: (UserProfileWithRelationships?) -> Unit
-    ) {
+    fun getUserWithRelationships(userId: String, callback: (UserProfileWithRelationships?) -> Unit) {
         userRepository.getUserById(userId) { success, _, user ->
-            if (success && user != null) {
-                favoriteRepository.getUserFavorites(userId) { success, _, favorites ->
-                    playlistRepository.getUserPlaylists(userId) { playlistSuccess, _, playlists ->
+            if (!success || user == null) return@getUserById callback(null)
 
-                        val profile = UserProfileWithRelationships(
-                            user = user,
-                            favoriteMusic = emptyList(),
-                            playlists = playlists ?: emptyList(),
-                            uploadedMusic = emptyList(),
-                            followedArtists = emptyList()
-                        )
-
-                        callback(profile)
-                    }
-                }
-            } else {
-                callback(null)
+            playlistRepository.getUserPlaylists(userId) { playlistSuccess, _, playlists ->
+                val profile = UserProfileWithRelationships(
+                    user = user,
+                    favoriteMusic = emptyList(),
+                    playlists = playlists ?: emptyList(),
+                    uploadedMusic = emptyList(),
+                    followedArtists = emptyList()
+                )
+                callback(profile)
             }
         }
     }
 
-    // Helper functions to generate IDs
+    // ID generators
     private fun generateFavoriteId(): String = "fav_${System.currentTimeMillis()}_${(1000..9999).random()}"
-    private fun generateFollowId(): String = "follow_${System.currentTimeMillis()}_${(1000..9999).random()}"
     private fun generatePlaylistId(): String = "playlist_${System.currentTimeMillis()}_${(1000..9999).random()}"
-}
-
-/**
- * Data class representing a complete user profile with all relationships
- */
-data class UserProfileWithRelationships(
-    val user: UserModel,
-    val favoriteMusic: List<MusicModel>,
-    val playlists: List<PlaylistModel>,
-    val uploadedMusic: List<MusicModel>,
-    val followedArtists: List<ArtistModel>
-)
-
-/**
- * Extension functions for easier relationship management
- */
-fun UserModel.hasFavorite(musicId: String): Boolean {
-    return favoriteIds.any { it.contains(musicId) }
-}
-
-fun UserModel.isFollowing(artistId: String): Boolean {
-    return followedArtistIds.contains(artistId)
-}
-
-fun UserModel.ownsPlaylist(playlistId: String): Boolean {
-    return playlistIds.contains(playlistId)
-}
-
-fun UserModel.hasUploadedMusic(musicId: String): Boolean {
-    return uploadedMusicIds.contains(musicId)
 }

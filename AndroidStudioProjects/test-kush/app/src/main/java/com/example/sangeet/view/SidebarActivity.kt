@@ -1,4 +1,4 @@
-package com.example.sangeet.view
+package com.example.sangeet.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.sangeet.model.UserModel
+import com.example.sangeet.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -29,9 +30,8 @@ fun SidebarDrawer(
     currentUser: UserModel?
 ) {
     val gradient = Brush.verticalGradient(
-        colors = listOf(Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF0F3460))
+        listOf(Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF0F3460))
     )
-
     val userId = currentUser?.userId ?: "guest"
 
     Column(
@@ -39,14 +39,17 @@ fun SidebarDrawer(
             .fillMaxHeight()
             .width(280.dp)
             .background(gradient)
-            .padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 16.dp),
+            .padding(16.dp),
         verticalArrangement = Arrangement.Top
     ) {
-        // 🧑 User Info
+        // 👤 User Info
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { navController.navigate("profile/$userId"); onClose() },
+                .clickable {
+                    navController.navigate(Screen.Profile(userId).route)
+                    onClose()
+                },
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
@@ -85,18 +88,19 @@ fun SidebarDrawer(
         Divider(color = Color.White.copy(alpha = 0.2f))
         Spacer(modifier = Modifier.height(16.dp))
 
-        val navigationItems = listOf(
-            SidebarItem("Home", Icons.Default.Home, "dashboard"),
-            SidebarItem("Upload Music", Icons.Default.CloudUpload, "upload_music/$userId"),
-            SidebarItem("My Favorites", Icons.Default.Favorite, "favorites/$userId"),
-            SidebarItem("My Playlists", Icons.Default.PlaylistPlay, "playlists/$userId"),
-            SidebarItem("Library", Icons.Default.LibraryMusic, "library"),
-            SidebarItem("Search", Icons.Default.Search, "search"),
-            SidebarItem("Settings", Icons.Default.Settings, "settings"),
-            SidebarItem("About Us", Icons.Default.Info, "about_us")
+        // 🧭 Navigation Items
+        val navItems = listOf(
+            SidebarItem("Home", Icons.Default.Home, Screen.Dashboard.route),
+            SidebarItem("Upload Music", Icons.Default.CloudUpload, Screen.UploadMusic(userId).route),
+            SidebarItem("My Favorites", Icons.Default.Favorite, Screen.Favorites(userId).route),
+            SidebarItem("My Playlists", Icons.Default.PlaylistPlay, Screen.Playlist(userId).route),
+            SidebarItem("Library", Icons.Default.LibraryMusic, Screen.Library.route),
+            SidebarItem("Search", Icons.Default.Search, Screen.Search.route),
+            SidebarItem("Settings", Icons.Default.Settings, Screen.Settings.route),
+            SidebarItem("About Us", Icons.Default.Info, Screen.AboutUs.route)
         )
 
-        navigationItems.forEach { item ->
+        navItems.forEach { item ->
             SidebarNavigationItem(item = item) {
                 navController.navigate(item.route)
                 onClose()
@@ -110,7 +114,7 @@ fun SidebarDrawer(
             item = SidebarItem("Logout", Icons.Default.ExitToApp, "logout")
         ) {
             FirebaseAuth.getInstance().signOut()
-            navController.navigate("login") {
+            navController.navigate(Screen.Login.route) {
                 popUpTo(0) { inclusive = true }
             }
             onClose()
@@ -119,7 +123,10 @@ fun SidebarDrawer(
 }
 
 @Composable
-fun SidebarNavigationItem(item: SidebarItem, onClick: () -> Unit) {
+fun SidebarNavigationItem(
+    item: SidebarItem,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,7 +137,7 @@ fun SidebarNavigationItem(item: SidebarItem, onClick: () -> Unit) {
     ) {
         Icon(
             imageVector = item.icon,
-            contentDescription = item.title,
+            contentDescription = "${item.title} icon",
             tint = Color.White,
             modifier = Modifier.size(24.dp)
         )

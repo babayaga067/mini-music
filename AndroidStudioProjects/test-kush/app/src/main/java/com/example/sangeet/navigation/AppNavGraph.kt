@@ -14,101 +14,69 @@ import com.example.sangeet.viewmodel.*
 
 @Composable
 fun AppNavGraph(navController: NavHostController) {
-    // 🔁 Shared ViewModels (remembered in graph scope)
     val userViewModel = remember { UserViewModel(UserRepositoryImpl()) }
     val musicViewModel = remember { MusicViewModel(MusicRepositoryImpl()) }
     val favoriteViewModel = remember { FavoriteViewModel(FavoriteRepositoryImpl()) }
     val playlistViewModel = remember { PlaylistViewModel(PlaylistRepositoryImpl()) }
 
-    NavHost(
-        navController = navController,
-        startDestination = "splash"
-    ) {
-        // 🟡 Auth
-        composable("splash") { SplashScreen(navController) }
-        composable("login") { LoginScreen(navController, userViewModel) }
-        composable("register") { RegisterScreen(navController, userViewModel) }
+    NavHost(navController = navController, startDestination = Screen.Splash.route) {
 
-        // 🟢 Main Dashboard
-        composable("dashboard") {
-            DashboardScreen(
-                navController = navController,
-                userViewModel = userViewModel,
-                musicViewModel = musicViewModel,
-                favoriteViewModel = favoriteViewModel,
-                playlistViewModel = playlistViewModel
-            )
+        // 🔐 Auth
+        composable(Screen.Splash.route) { SplashScreen(navController) }
+        composable(Screen.Login.route) { LoginScreen(navController, userViewModel) }
+        composable(Screen.Register.route) { RegisterScreen(navController) }
+
+        // 🏠 Dashboard & Menu
+        composable(Screen.Dashboard.route) {
+            DashboardScreen(navController, userViewModel, musicViewModel, favoriteViewModel, playlistViewModel)
         }
+        composable(Screen.Menu.route) { MenuScreen() }
 
-        // 🔍 Utilities
-        composable("search") { SearchScreen(navController) }
-        composable("library") { LibraryScreen() }
-        composable("menu") { MenuScreen() }
+        // 🔍 Discovery
+        composable(Screen.Search.route) { SearchScreen(navController) }
+        composable(Screen.Library.route) { LibraryScreen() }
 
         // 👤 Profile
-        composable(
-            route = "profile/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.StringType })
-        ) {
+        composable(Screen.Profile.base, listOf(navArgument("userId") { type = NavType.StringType })) {
             val userId = it.arguments?.getString("userId").orEmpty()
-            ProfileScreen(navController, userId, musicViewModel, userViewModel)
+            ProfileScreen(navController, userId, userViewModel)
         }
-
-        composable(
-            route = "edit_profile/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.StringType })
-        ) {
+        composable(Screen.EditProfile.base, listOf(navArgument("userId") { type = NavType.StringType })) {
             val userId = it.arguments?.getString("userId").orEmpty()
             EditProfileScreen(navController, userId)
         }
 
-        // 🎵 Music Upload & Playback
-        composable(
-            route = "upload_music/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.StringType })
-        ) {
+        // 🎵 Music
+        composable(Screen.PlayingNow.base, listOf(navArgument("musicId") { type = NavType.StringType })) {
+            val musicId = it.arguments?.getString("musicId").orEmpty()
+            PlayingNowScreen(musicId, musicViewModel, navController)
+        }
+        composable(Screen.UploadMusic.base, listOf(navArgument("userId") { type = NavType.StringType })) {
             val userId = it.arguments?.getString("userId").orEmpty()
             UploadMusicScreen(navController, userId, musicViewModel, userViewModel)
         }
 
-        composable(
-            route = "playing_now/{musicId}",
-            arguments = listOf(navArgument("musicId") { type = NavType.StringType })
-        ) {
-            val musicId = it.arguments?.getString("musicId").orEmpty()
-            PlayingNowScreen(musicId, musicViewModel, navController)
-        }
-
-        // 🎧 Favorites & Playlists
-        composable(
-            route = "favorites/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.StringType })
-        ) {
+        // ❤️ Favorites
+        composable(Screen.Favorites.base, listOf(navArgument("userId") { type = NavType.StringType })) {
             val userId = it.arguments?.getString("userId").orEmpty()
             FavoritesScreen(navController, userId)
         }
 
-        composable(
-            route = "playlists/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.StringType })
-        ) {
+        // 📁 Playlists
+        composable(Screen.Playlists.base, listOf(navArgument("userId") { type = NavType.StringType })) {
             val userId = it.arguments?.getString("userId").orEmpty()
             PlaylistScreen(navController, userId)
         }
-
-        composable(
-            route = "create_playlist/{userId}",
-            arguments = listOf(navArgument("userId") { type = NavType.StringType })
-        ) {
-            val userId = it.arguments?.getString("userId").orEmpty()
-            CreatePlaylistScreen(navController, userId)
-        }
+//        composable(Screen.CreatePlaylist.route, listOf(navArgument("userId") { type = NavType.StringType })) {
+//            val userId = it.arguments?.getString("userId").orEmpty()
+//            CreatePlaylistScreen(navController, userId)
+//        }
 
         // 🎤 Artists
-        composable("artists") { ArtistListScreen(navController) }
+        composable(Screen.Artists.route) { ArtistListScreen(navController) }
 
-        // 📄 Informational Pages
-        composable("about_us") { AboutUsScreen(navController) }
-        composable("settings") { SettingsScreen(navController) }
+        // ℹ️ Info
+        composable(Screen.AboutUs.route) { AboutUsScreen(navController) }
+        composable(Screen.Settings.route) { SettingsScreen(navController) }
     }
 }

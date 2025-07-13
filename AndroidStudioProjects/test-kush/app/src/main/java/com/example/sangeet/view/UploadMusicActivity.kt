@@ -40,34 +40,45 @@ import com.example.sangeet.utils.FileUploadUtil
 import com.example.sangeet.viewmodel.MusicViewModel
 import com.example.sangeet.viewmodel.UserViewModel
 import java.util.UUID
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.navigation.compose.rememberNavController
 
 
 class UploadMusicActivity : ComponentActivity() {
-    private val userViewModel by lazy {
-        UserViewModel(UserRepositoryImpl()) }
-    private val musicViewModel by lazy {
-        MusicViewModel(MusicRepositoryImpl()) }
+
+    private val userViewModel by lazy { UserViewModel(UserRepositoryImpl()) }
+    private val musicViewModel by lazy { MusicViewModel(MusicRepositoryImpl()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val userId = intent.getStringExtra("userId") ?: ""
+
+        val userId = intent.getStringExtra("userId").orEmpty()
+
         setContent {
             val navController = rememberNavController()
+
             UploadMusicScreen(
                 navController = navController,
                 userId = userId,
-                userViewModel = userViewModel,
-                musicViewModel = musicViewModel)}
+                musicViewModel = musicViewModel,
+                userViewModel = userViewModel
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UploadMusicScreen(navController: NavController, userId: String,musicViewModel: MusicViewModel, userViewModel : UserViewModel) {
+fun UploadMusicScreen(
+    navController: NavController,
+    userId: String,
+    musicViewModel: MusicViewModel,
+    userViewModel: UserViewModel
+) {
     val context = LocalContext.current
     val gradient = Brush.verticalGradient(listOf(Color(0xFF4A004A), Color(0xFF1C0038)))
-    val musicViewModel = remember { MusicViewModel(MusicRepositoryImpl()) }
 
     var musicName by remember { mutableStateOf("") }
     var artistName by remember { mutableStateOf("") }
@@ -78,69 +89,58 @@ fun UploadMusicScreen(navController: NavController, userId: String,musicViewMode
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var isUploading by remember { mutableStateOf(false) }
 
-    val audioPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri -> audioUri = uri }
-    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri -> imageUri = uri }
+    val audioPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
+            uri -> audioUri = uri
+    }
+    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
+            uri -> imageUri = uri
+    }
 
-
-    val userViewModel = remember { UserViewModel(UserRepositoryImpl()) }
-    Column(modifier = Modifier.fillMaxSize().background(gradient)) {
-        TopAppBar(
-            title = { Text("Upload Music", color = Color.White, fontWeight = FontWeight.Bold) },
-            navigationIcon = {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-        )
-
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            // 🎼 Music Metadata Card
-            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.3f))) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    @Composable
-                    fun fieldColors() = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = Color.White,
-                        focusedBorderColor = Color(0xFFE91E63),
-                        unfocusedBorderColor = Color.Gray,
-                        focusedLabelColor = Color.White,
-                        unfocusedLabelColor = Color.Gray
-                    )
-
-                    Text("Music Details", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-
-                    OutlinedTextField(value = musicName, onValueChange = { musicName = it }, label = { Text("Music Name") }, leadingIcon = { Icon(Icons.Default.MusicNote, null, tint = Color.White) }, modifier = Modifier.fillMaxWidth(), colors = fieldColors())
-                    OutlinedTextField(value = artistName, onValueChange = { artistName = it }, label = { Text("Artist Name") }, modifier = Modifier.fillMaxWidth(), colors = fieldColors())
-                    OutlinedTextField(value = genre, onValueChange = { genre = it }, label = { Text("Genre") }, modifier = Modifier.fillMaxWidth(), colors = fieldColors())
-                    OutlinedTextField(value = duration, onValueChange = { duration = it }, label = { Text("Duration (seconds)") }, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), modifier = Modifier.fillMaxWidth(), colors = fieldColors())
-                    OutlinedTextField(value = description, onValueChange = { description = it }, label = { Text("Description") }, modifier = Modifier.fillMaxWidth(), minLines = 3, colors = fieldColors())
-                }
-            }
-
-            // 🎵 File Picker Card
-            Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.3f))) {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text("File Selection", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-
-                    Row(modifier = Modifier.fillMaxWidth().clickable { audioPicker.launch("audio/*") }.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.MusicNote, null, tint = Color.White)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(if (audioUri == null) "Select Audio File" else audioUri!!.lastPathSegment ?: "Audio Selected", color = Color.White)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("Upload Music", color = Color.White, fontWeight = FontWeight.Bold)
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                     }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+            )
+        },
+        containerColor = Color.Transparent
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(gradient)
+                .verticalScroll(rememberScrollState())
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
+        ) {
+            MusicMetadataSection(
+                musicName = musicName,
+                artistName = artistName,
+                genre = genre,
+                description = description,
+                duration = duration,
+                onMusicNameChange = { musicName = it },
+                onArtistNameChange = { artistName = it },
+                onGenreChange = { genre = it },
+                onDescriptionChange = { description = it },
+                onDurationChange = { duration = it }
+            )
 
-                    Row(modifier = Modifier.fillMaxWidth().clickable { imagePicker.launch("image/*") }.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Image, null, tint = Color.White)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(if (imageUri == null) "Select Cover Image" else imageUri!!.lastPathSegment ?: "Image Selected", color = Color.White)
-                    }
+            FilePickerSection(
+                audioUri = audioUri,
+                imageUri = imageUri,
+                onAudioPick = { audioPicker.launch("audio/*") },
+                onImagePick = { imagePicker.launch("image/*") }
+            )
 
-                    Text("Note: Files will be uploaded to backend using Firebase.", color = Color.Gray, fontSize = 12.sp)
-                }
-            }
-
-            // 🚀 Upload Button
             Button(
                 onClick = {
                     if (musicName.isBlank() || artistName.isBlank() || audioUri == null) {

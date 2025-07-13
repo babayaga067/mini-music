@@ -18,18 +18,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.util.PatternsCompat
 import androidx.navigation.NavController
 import com.example.sangeet.model.UserModel
+import com.example.sangeet.repository.UserRepositoryImpl
 import com.example.sangeet.viewmodel.UserViewModel
+import com.example.sangeet.navigation.Screen
 
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    userViewModel: UserViewModel
+    onSignupSuccess: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -39,6 +42,9 @@ fun RegisterScreen(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var termsAccepted by remember { mutableStateOf(false) }
+
+    val repo = remember { UserRepositoryImpl() }
+    val userViewModel = remember { UserViewModel(repo) }
 
     val gradient = Brush.verticalGradient(listOf(Color(0xFF4A004A), Color(0xFF1C0038)))
 
@@ -70,7 +76,7 @@ fun RegisterScreen(
                 Checkbox(
                     checked = termsAccepted,
                     onCheckedChange = { termsAccepted = it },
-                    colors = CheckboxDefaults.colors(Color.White)
+                    colors = CheckboxDefaults.colors(checkedColor = Color.White)
                 )
                 Text("I accept the Terms & Conditions", color = Color.White, fontSize = 12.sp)
             }
@@ -106,9 +112,10 @@ fun RegisterScreen(
                                     userViewModel.addUserToDatabase(userId, userModel) { dbSuccess, dbMessage ->
                                         if (dbSuccess) {
                                             Toast.makeText(context, "Signup successful!", Toast.LENGTH_LONG).show()
-                                            navController.navigate("login") {
-                                                popUpTo("register") { inclusive = true }
+                                            navController.navigate(Screen.Login.route) {
+                                                popUpTo(Screen.Register.route) { inclusive = true }
                                             }
+                                            onSignupSuccess()
                                         } else {
                                             Toast.makeText(context, "Database error: $dbMessage", Toast.LENGTH_LONG).show()
                                         }
@@ -126,7 +133,7 @@ fun RegisterScreen(
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
-                Text("SIGN UP", color = Color.White)
+                Text("SIGN UP", color = Color.White, fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -134,8 +141,8 @@ fun RegisterScreen(
             Row {
                 Text("Already have an account? ", color = Color.White)
                 TextButton(onClick = {
-                    navController.navigate("login") {
-                        popUpTo("register") { inclusive = true }
+                    navController.navigate(Screen.Login.route) {
+                        popUpTo(Screen.Register.route) { inclusive = true }
                     }
                 }) {
                     Text("Login", color = Color.Cyan)
@@ -161,14 +168,13 @@ fun RegisterTextField(
         label = { Text(text = label, color = Color.White, fontSize = 14.sp) },
         textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
         singleLine = true,
-        visualTransformation = if (isPassword && !passwordVisible)
-            PasswordVisualTransformation() else VisualTransformation.None,
+        visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         trailingIcon = {
             if (isPassword) {
-                val icon = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                val icon = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                    Icon(imageVector = icon, contentDescription = null, tint = Color.White)
+                    Icon(imageVector = icon, contentDescription = if (passwordVisible) "Hide Password" else "Show Password", tint = Color.White)
                 }
             }
         },

@@ -1,6 +1,7 @@
 package com.example.sangeet.component
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
@@ -14,20 +15,21 @@ import androidx.navigation.NavController
 import com.example.sangeet.R
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) {
+        // Introduce delay to simulate loading
         delay(2000)
+
+        // Determine authentication state
         val user = FirebaseAuth.getInstance().currentUser
-        if (user != null) {
-            navController.navigate("dashboard") {
-                popUpTo("splash") { inclusive = true }
-            }
-        } else {
-            navController.navigate("login") {
-                popUpTo("splash") { inclusive = true }
-            }
+        val destination = if (user != null) "dashboard" else "login"
+
+        // Navigate to destination and clear splash from backstack
+        navController.navigate(destination) {
+            popUpTo("splash") { inclusive = true }
         }
     }
 
@@ -36,10 +38,11 @@ fun SplashScreen(navController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .background(Color.Black) // fallback background
         ) {
             Image(
                 painter = painterResource(id = R.drawable.background),
-                contentDescription = null,
+                contentDescription = "Splash Background",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
@@ -49,9 +52,12 @@ fun SplashScreen(navController: NavController) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(painter = painterResource(id = R.drawable.logo), contentDescription = null)
+                Image(
+                    painter = painterResource(id = R.drawable.logo),
+                    contentDescription = "App Logo"
+                )
                 Spacer(modifier = Modifier.height(16.dp))
-                CircularProgressIndicator()
+                CircularProgressIndicator(color = Color.White)
             }
         }
     }

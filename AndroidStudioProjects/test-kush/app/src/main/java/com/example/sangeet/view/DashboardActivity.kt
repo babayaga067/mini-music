@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.sangeet.component.*
 import com.example.sangeet.model.MusicModel
+import com.example.sangeet.navigation.Screen
 import com.example.sangeet.utils.toggleFavorite
 import com.example.sangeet.viewmodel.*
 import com.google.firebase.auth.FirebaseAuth
@@ -30,18 +31,28 @@ fun DashboardScreen(
     favoriteViewModel: FavoriteViewModel,
     playlistViewModel: PlaylistViewModel
 ) {
+    val context = LocalContext.current
     val gradient = Brush.verticalGradient(listOf(Color(0xFF4A004A), Color(0xFF1C0038)))
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
 
-    val authUserId = remember { FirebaseAuth.getInstance().currentUser?.uid }
-
-    if (authUserId == null) {
-        ShowLoginRequiredScreen(gradient, drawerState)
+    val userId = FirebaseAuth.getInstance().currentUser?.uid
+    if (userId == null) {
+        ModalNavigationDrawer(drawerState = drawerState, drawerContent = {}) {
+            Scaffold { padding ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .background(gradient),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Please log in to continue", color = Color.White)
+                }
+            }
+        }
         return
     }
-
-    val context = LocalContext.current
 
     val allMusics by musicViewModel.allMusics.observeAsState(emptyList())
     val isLoading by musicViewModel.isLoading.observeAsState(false)
@@ -49,18 +60,21 @@ fun DashboardScreen(
     val favoriteMusics by favoriteViewModel.favoriteMusics.observeAsState(emptyList())
     val userPlaylists by playlistViewModel.userPlaylists.observeAsState(emptyList())
 
-    var showPlaylistDialog by remember { mutableStateOf(false) }
-    var selectedMusicForPlaylist by remember { mutableStateOf<MusicModel?>(null) }
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedMusic by remember { mutableStateOf<MusicModel?>(null) }
 
-    LaunchedEffect(Unit) {
+    val refreshDashboard = {
         musicViewModel.getAllMusics()
-        userViewModel.getUserById(authUserId)
-        favoriteViewModel.getUserFavoriteMusics(authUserId)
-        playlistViewModel.getUserPlaylists(authUserId)
+        userViewModel.getUserById(userId)
+        favoriteViewModel.getUserFavoriteMusics(userId)
+        playlistViewModel.getUserPlaylists(userId)
+        Toast.makeText(context, "Refreshing...", Toast.LENGTH_SHORT).show()
     }
 
-    val recentlyPlayed = allMusics.takeLast(4)
-    val recommended = allMusics.take(10)
+    LaunchedEffect(Unit) { refreshDashboard() }
+
+    val recentlyPlayed = allMusics.takeLast(4).filterNotNull()
+    val recommended = allMusics.take(10).filterNotNull()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -75,12 +89,12 @@ fun DashboardScreen(
         Scaffold(
             bottomBar = { BottomNavigationBar() },
             containerColor = Color.Transparent
-        ) { paddingValues ->
+        ) { padding ->
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
                     .background(gradient)
+                    .padding(padding)
             ) {
                 Column(
                     modifier = Modifier
@@ -90,15 +104,9 @@ fun DashboardScreen(
                 ) {
                     DashboardTopBar(
                         currentUser = currentUser,
-                        onRefresh = {
-                            musicViewModel.getAllMusics()
-                            userViewModel.getUserById(authUserId)
-                            favoriteViewModel.getUserFavoriteMusics(authUserId)
-                            playlistViewModel.getUserPlaylists(authUserId)
-                            Toast.makeText(context, "Refreshing...", Toast.LENGTH_SHORT).show()
-                        },
+                        onRefresh = refreshDashboard,
                         onProfileClick = {
-                            navController.navigate("profile/$authUserId")
+                            navController.navigate(Screen.Profile(userId).route)
                         },
                         onMenuClick = {
                             scope.launch { drawerState.open() }
@@ -106,95 +114,66 @@ fun DashboardScreen(
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
-                    QuickAccessSection(navController, authUserId)
+
+                    QuickAccessSection(navController = navController, userId = userId)
+
                     Spacer(modifier = Modifier.height(24.dp))
 
                     RecentlyPlayedSection(
-                        musics = recentlyPlayed.filterNotNull(),
+                        musics = recentlyPlayed,
                         isLoading = isLoading,
-                        userId = authUserId,
+                        userId = userId,
                         favoriteMusics = favoriteMusics,
                         onToggleFavorite = { musicId ->
-                            toggleFavorite(authUserId, musicId, favoriteViewModel, context)
+                            toggleFavorite(userId, musicId, favoriteViewModel, context)
                         },
-                        onAddToPlaylist = { music ->
-                            selectedMusicForPlaylist = music
-                            showPlaylistDialog = true
-                        }
-                    )
+//                        onAddToPlaylist = { music ->
+//                            selectedMusic = music
+//                            showDialog = true
+//                        }
+//                    )
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     RecommendationSection(
-                        musics = recommended.filterNotNull(),
+                        musics = recommended,
                         isLoading = isLoading,
-                        userId = authUserId,
+                        userId = userId,
                         favoriteMusics = favoriteMusics,
+                        navController = navController,
                         onToggleFavorite = { musicId ->
-                            toggleFavorite(authUserId, musicId, favoriteViewModel, context)
+                            toggleFavorite(userId, musicId, favoriteViewModel, context)
                         },
                         onAddToPlaylist = { music ->
-                            selectedMusicForPlaylist = music
-                            showPlaylistDialog = true
+                            selectedMusic = music
+                            showDialog = true
                         }
                     )
                 }
 
-                selectedMusicForPlaylist?.let { music ->
-                    if (showPlaylistDialog) {
-                        AddToPlaylistDialog(
-                            music = music,
-                            playlists = userPlaylists,
-                            onDismiss = {
-                                showPlaylistDialog = false
-                                selectedMusicForPlaylist = null
-                            },
-                            onCreateNew = {
-                                navController.navigate("create_playlist/$authUserId")
-                                showPlaylistDialog = false
-                                selectedMusicForPlaylist = null
-                            },
-                            onAddToPlaylist = { playlistId ->
-                                playlistViewModel.addMusicToPlaylist(
-                                    playlistId = playlistId,
-                                    musicId = music.musicId
-                                ) { success, message ->
-                                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                                }
-                                showPlaylistDialog = false
-                                selectedMusicForPlaylist = null
+                if (showDialog && selectedMusic != null) {
+                    AddToPlaylistDialog(
+                        navController = navController,
+                        userId = userId,
+                        music = selectedMusic!!,
+                        playlists = userPlaylists,
+                        onDismiss = {
+                            showDialog = false
+                            selectedMusic = null
+                        },
+                        onAddToPlaylist = { playlistId ->
+                            playlistViewModel.addMusicToPlaylist(
+                                playlistId = playlistId,
+                                musicId = selectedMusic!!.musicId
+                            ) { success, message ->
+                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                             }
-                        )
-                    }
+                            showDialog = false
+                            selectedMusic = null
+                        }
+                    )
                 }
             }
         }
     }
-}
-
-@Composable
-private fun ShowLoginRequiredScreen(
-    gradient: Brush,
-    drawerState: DrawerState
-) {
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {}
-    ) {
-        Scaffold { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .background(gradient),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Please log in to continue",
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-        }
     }
-}

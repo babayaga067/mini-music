@@ -42,6 +42,34 @@ import com.example.sangeet.model.PlaylistModel
 import com.example.sangeet.repository.PlaylistRepositoryImpl
 import com.example.sangeet.viewmodel.PlaylistViewModel
 import java.io.File
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.navigation.compose.rememberNavController
+
+
+class PlaylistActivity : ComponentActivity() {
+
+    private val playlistViewModel by lazy {
+        PlaylistViewModel(PlaylistRepositoryImpl())
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
+        val userId = intent.getStringExtra("userId").orEmpty()
+
+        setContent {
+            val navController = rememberNavController()
+
+            PlaylistScreen(
+                navController = navController,
+                userId = userId)
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

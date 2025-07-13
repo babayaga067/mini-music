@@ -2,14 +2,7 @@ package com.example.sangeet.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -25,24 +18,39 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.sangeet.model.UserModel
+import java.util.*
 
 @Composable
 fun DashboardTopBar(
-    currentUser: com.example.sangeet.model.UserModel?,
+    currentUser: UserModel?,
     onRefresh: () -> Unit,
     onProfileClick: () -> Unit,
     onMenuClick: () -> Unit
 ) {
+    val greeting = when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
+        in 5..11 -> "Good Morning"
+        in 12..16 -> "Good Afternoon"
+        in 17..22 -> "Good Evening"
+        else -> "Hello"
+    }
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = onMenuClick) {
-            Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color.White)
+            Icon(
+                imageVector = Icons.Default.Menu,
+                contentDescription = "Open menu",
+                tint = Color.White
+            )
         }
 
-        Column {
+        Column(horizontalAlignment = Alignment.Start) {
             Text(
                 text = "Hi ${currentUser?.fullName ?: "User"},",
                 color = Color.White,
@@ -50,15 +58,19 @@ fun DashboardTopBar(
                 fontWeight = FontWeight.Medium
             )
             Text(
-                text = "Good Afternoon",
-                color = Color.White,
+                text = greeting,
+                color = Color.White.copy(alpha = 0.85f),
                 fontSize = 14.sp
             )
         }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onRefresh) {
-                Icon(Icons.Default.Refresh, contentDescription = "Reload", tint = Color.White)
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Refresh content",
+                    tint = Color.White
+                )
             }
 
             Spacer(modifier = Modifier.width(8.dp))

@@ -103,8 +103,10 @@ fun LibraryScreen(navController: NavController? = null) {
                     ) {
                         Text(
                             text = currentUser?.fullName?.firstOrNull()?.uppercase() ?: "U",
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = Color.Black
                         )
                     }
                 }
@@ -150,7 +152,7 @@ fun LibraryScreen(navController: NavController? = null) {
                         Text("Recently played songs will appear here", color = Color.White.copy(0.7f), fontSize = 14.sp)
                     }
                 } else {
-                    LazyColumn {
+                    LazyColumn(modifier = Modifier.heightIn(max = 300.dp)) {
                         items(recentlyPlayed.filterNotNull().takeLast(10).reversed()) { music ->
                             SongItem(music)
                         }
@@ -173,7 +175,7 @@ fun LibraryCard(icon: ImageVector, title: String, subtitle: String, onClick: () 
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(icon, contentDescription = null, tint = Color.White)
+            Icon(icon, contentDescription ="$title icon", tint = Color.White)
             Text(title, color = Color.White, fontWeight = FontWeight.SemiBold)
             Text(subtitle, color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
         }

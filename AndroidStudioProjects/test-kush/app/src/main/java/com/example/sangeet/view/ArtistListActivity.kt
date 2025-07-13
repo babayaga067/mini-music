@@ -19,40 +19,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import com.example.sangeet.viewmodel.ArtistViewModel
 import com.example.sangeet.model.ArtistModel
+import com.example.sangeet.navigation.Screen
 import com.example.sangeet.repository.ArtistRepositoryImpl
+import com.example.sangeet.viewmodel.ArtistViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArtistListScreen(navController: NavController) {
     val gradient = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFF4A004A),
-            Color(0xFF1C0038)
-        )
+        colors = listOf(Color(0xFF4A004A), Color(0xFF1C0038))
     )
-    
-    val repo = remember { ArtistRepositoryImpl() }
-    val artistViewModel = remember { ArtistViewModel(repo) }
-    
+
+    val artistViewModel = remember { ArtistViewModel(ArtistRepositoryImpl()) }
+
     val allArtists by artistViewModel.allArtists.observeAsState(emptyList())
     val searchResults by artistViewModel.searchResults.observeAsState(emptyList())
     val isLoading by artistViewModel.isLoading.observeAsState(false)
-    
+
     var searchQuery by remember { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(Unit) {
         artistViewModel.getAllArtists()
     }
-    
+
     LaunchedEffect(searchQuery) {
         if (searchQuery.isNotBlank()) {
             isSearching = true
@@ -61,50 +59,29 @@ fun ArtistListScreen(navController: NavController) {
             isSearching = false
         }
     }
-    
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(gradient)
-    ) {
+
+    Column(modifier = Modifier.fillMaxSize().background(gradient)) {
         TopAppBar(
-            title = {
-                Text(
-                    "Artists",
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            },
+            title = { Text("Artists", color = Color.White, fontWeight = FontWeight.Bold) },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        Icons.Default.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.White
-                    )
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
             },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent
-            )
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
         )
-        
-        // Search Bar
+
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             shape = RoundedCornerShape(25.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.Black.copy(alpha = 0.3f)
-            )
+            colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.3f))
         ) {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
                 placeholder = { Text("Search artists...", color = Color.Gray) },
                 leadingIcon = {
-                    Icon(Icons.Default.Search, contentDescription = null, tint = Color.White)
+                    Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.White)
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -117,93 +94,34 @@ fun ArtistListScreen(navController: NavController) {
                 singleLine = true
             )
         }
-        
+
         when {
             isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        color = Color(0xFFE91E63)
-                    )
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Color(0xFFE91E63))
                 }
             }
-            
+
             isSearching && searchResults.isEmpty() && searchQuery.isNotBlank() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = null,
-                            tint = Color.Gray,
-                            modifier = Modifier.size(64.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            "No artists found",
-                            color = Color.Gray,
-                            fontSize = 18.sp
-                        )
-                        Text(
-                            "Try searching with different keywords",
-                            color = Color.Gray,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
+                EmptyState("No artists found", "Try searching with different keywords", Icons.Default.Search)
             }
-            
-            (!isSearching && allArtists.isEmpty()) -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            tint = Color.Gray,
-                            modifier = Modifier.size(64.dp)
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            "No artists available",
-                            color = Color.Gray,
-                            fontSize = 18.sp
-                        )
-                        Text(
-                            "Artists will appear here once added",
-                            color = Color.Gray,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
+
+            !isSearching && allArtists.isEmpty() -> {
+                EmptyState("No artists available", "Artists will appear here once added", Icons.Default.Person)
             }
-            
+
             else -> {
                 val artistsToShow = if (isSearching) searchResults else allArtists
-                
+
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(artistsToShow) { artist ->
-                        ArtistItem(
-                            artist = artist,
-                            onClick = {
-                                // Navigate to artist detail screen
-                                // navController.navigate("artist_detail/${artist.artistId}")
-                            }
-                        )
+                        ArtistItem(artist = artist) {
+//                            navController.navigate(Screen.ArtistDetail(artist.artistId).route)
+                        }
                     }
                 }
             }
@@ -212,78 +130,49 @@ fun ArtistListScreen(navController: NavController) {
 }
 
 @Composable
-fun ArtistItem(
-    artist: ArtistModel,
-    onClick: () -> Unit
-) {
+fun EmptyState(title: String, subtitle: String, icon: ImageVector) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(icon, contentDescription = "Empty icon", tint = Color.Gray, modifier = Modifier.size(64.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(title, color = Color.Gray, fontSize = 18.sp)
+            Text(subtitle, color = Color.Gray, fontSize = 14.sp)
+        }
+    }
+}
+
+@Composable
+fun ArtistItem(artist: ArtistModel, onClick: () -> Unit) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Black.copy(alpha = 0.3f)
-        )
+        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.3f))
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Artist Image
+        Row(modifier = Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             if (artist.imageUrl.isNotBlank()) {
                 AsyncImage(
                     model = artist.imageUrl,
-                    contentDescription = "Artist Image",
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape),
+                    contentDescription = "${artist.artistName} Image",
+                    modifier = Modifier.size(60.dp).clip(CircleShape),
                     contentScale = ContentScale.Crop
                 )
             } else {
                 Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .background(Color.Gray),
+                    modifier = Modifier.size(60.dp).clip(CircleShape).background(Color.Gray),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Default.Person,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(30.dp)
-                    )
+                    Icon(Icons.Default.Person, contentDescription = "Default Artist Icon", tint = Color.White, modifier = Modifier.size(30.dp))
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(16.dp))
-            
-            // Artist Info
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = artist.artistName,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(artist.artistName, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
                 if (artist.genre.isNotBlank()) {
-                    Text(
-                        text = artist.genre,
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
+                    Text(artist.genre, color = Color.Gray, fontSize = 14.sp)
                 }
-                
-                Text(
-                    text = "${artist.followersCount} followers • ${artist.musicIds.size} songs",
-                    color = Color.Gray,
-                    fontSize = 12.sp
-                )
+                Text("${artist.followersCount} followers • ${artist.musicIds.size} songs", color = Color.Gray, fontSize = 12.sp)
             }
         }
     }

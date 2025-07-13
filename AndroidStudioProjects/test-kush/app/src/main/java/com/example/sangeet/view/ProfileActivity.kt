@@ -1,141 +1,145 @@
 package com.example.sangeet.view
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.sangeet.model.UserModel
-import com.example.sangeet.repository.MusicRepositoryImpl
-import com.example.sangeet.repository.UserRepositoryImpl
-import com.example.sangeet.viewmodel.MusicViewModel
+import com.example.sangeet.component.ChangePasswordDialog
+import com.example.sangeet.component.EditProfileDialog
+import com.example.sangeet.component.ProfileOptionCard
 import com.example.sangeet.viewmodel.UserViewModel
+import com.example.sangeet.repository.UserRepositoryImpl
+import com.example.sangeet.navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
 
 class ProfileActivity : ComponentActivity() {
     private val userViewModel by lazy {
-        UserViewModel(UserRepositoryImpl()) }
-    private val musicViewModel by lazy {
-        MusicViewModel(MusicRepositoryImpl()) }
+        UserViewModel(UserRepositoryImpl())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val userId = intent.getStringExtra("userId") ?: ""
+        val userId = intent.getStringExtra("userId").orEmpty()
 
         setContent {
+            val navController = rememberNavController()
             ProfileScreen(
-                navController = rememberNavController(),
+                navController = navController,
                 userId = userId,
-                musicViewModel = musicViewModel,
-                userViewModel = userViewModel)
-            }
+                userViewModel = userViewModel
+            )
         }
     }
-
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(navController: NavController? = null,
-                  userId: String,
-                  musicViewModel: MusicViewModel,
-                  userViewModel: UserViewModel) {
+fun ProfileScreen(
+    navController: NavController? = null,
+    userId: String,
+    userViewModel: UserViewModel
+) {
     val context = LocalContext.current
     val gradient = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFF1A1A2E),
-            Color(0xFF16213E),
-            Color(0xFF0F3460)
-        )
+        listOf(Color(0xFF1A1A2E), Color(0xFF16213E), Color(0xFF0F3460))
     )
-    
-    val userRepository = UserRepositoryImpl()
-//    val userViewModel = UserViewModel(UserRepositoryImpl())
+
     val currentUser by userViewModel.user.observeAsState()
     var isLoading by remember { mutableStateOf(false) }
-    
-    val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "user123"
-    
     var showEditDialog by remember { mutableStateOf(false) }
     var showPasswordDialog by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(Unit) {
-        if (userId != "user123") {
+        if (userId.isNotBlank()) {
             userViewModel.getUserById(userId)
         }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Profile", color = Color.White) },
                 navigationIcon = {
-                    IconButton(
-                        onClick = { navController?.navigateUp() }
-                    ) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.White
-                        )
+                    IconButton(onClick = { navController?.navigateUp() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Go back", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
         containerColor = Color.Transparent
-    ) { paddingValues ->
+    ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(gradient)
-                .padding(paddingValues)
+                .padding(padding)
         ) {
             if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator(color = Color(0xFFE91E63))
                 }
             } else {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp)
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Spacer(modifier = Modifier.height(32.dp))
-                    
-                    // Profile Avatar
+
+                    // Avatar
                     Box(
                         modifier = Modifier
                             .size(120.dp)
@@ -144,372 +148,95 @@ fun ProfileScreen(navController: NavController? = null,
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = currentUser?.fullName?.firstOrNull()?.toString()?.uppercase() ?: "U",
+                            text = currentUser?.fullName?.firstOrNull()?.uppercase() ?: "U",
+                            fontSize = 48.sp,
                             color = Color.Black,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 48.sp
+                            fontWeight = FontWeight.Bold
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = currentUser?.fullName ?: "User",
-                        color = Color.White,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    
-                    Text(
-                        text = currentUser?.email ?: "user@example.com",
-                        color = Color.White.copy(alpha = 0.7f),
-                        fontSize = 16.sp
-                    )
-                    
+                    Text(currentUser?.fullName ?: "User", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(currentUser?.email ?: "user@example.com", fontSize = 16.sp, color = Color.White.copy(alpha = 0.7f))
+
                     Spacer(modifier = Modifier.height(32.dp))
-                    
-                    // Profile Options
+
                     ProfileOptionCard(
                         icon = Icons.Default.Edit,
                         title = "Edit Profile",
-                        subtitle = "Update your personal information",
+                        subtitle = "Update your personal info",
                         onClick = { showEditDialog = true }
                     )
-                    
+
                     Spacer(modifier = Modifier.height(12.dp))
-                    
+
                     ProfileOptionCard(
                         icon = Icons.Default.Lock,
                         title = "Change Password",
                         subtitle = "Update your account password",
                         onClick = { showPasswordDialog = true }
                     )
-                    
+
                     Spacer(modifier = Modifier.height(12.dp))
-                    
-                    ProfileOptionCard(
-                        icon = Icons.Default.Notifications,
-                        title = "Notifications",
-                        subtitle = "Manage your notification preferences",
-                        onClick = { /* Handle notifications */ }
-                    )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
+
                     ProfileOptionCard(
                         icon = Icons.Default.Settings,
                         title = "Settings",
                         subtitle = "App preferences and configurations",
-                        onClick = { /* Handle settings */ }
+                        onClick = { /* Future settings */ }
                     )
-                    
+
                     Spacer(modifier = Modifier.height(32.dp))
-                    
-                    // Logout Button
+
                     Button(
                         onClick = {
                             FirebaseAuth.getInstance().signOut()
-                            navController?.navigate("login") {
+                            navController?.navigate(Screen.Login.route) {
                                 popUpTo(0) { inclusive = true }
                             }
+                            Toast.makeText(context, "Logged out", Toast.LENGTH_SHORT).show()
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Red.copy(alpha = 0.8f)
-                        ),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red.copy(alpha = 0.8f)),
+                        modifier = Modifier.fillMaxWidth().height(50.dp),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Icon(
-                            Icons.Default.ExitToApp,
-                            contentDescription = null,
-                            tint = Color.White
-                        )
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Logout", tint = Color.White)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            "Logout",
-                            color = Color.White,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+                        Text("Logout", fontSize = 16.sp, fontWeight = FontWeight.Medium, color = Color.White)
                     }
                 }
+            }
+
+            if (showEditDialog) {
+                EditProfileDialog(
+                    currentUser = currentUser,
+                    onDismiss = { showEditDialog = false },
+                    onSave = { updatedUser ->
+                        isLoading = true
+                        val updates = mapOf("fullName" to updatedUser.fullName)
+                        userViewModel.updateProfile(userId, updates) { success, _ ->
+                            isLoading = false
+                            if (success) userViewModel.getUserById(userId)
+                        }
+                        showEditDialog = false
+                    }
+                )
+            }
+
+            if (showPasswordDialog) {
+                ChangePasswordDialog(
+                    onDismiss = { showPasswordDialog = false },
+                    onSave = { _, newPassword ->
+                        val user = FirebaseAuth.getInstance().currentUser
+                        user?.updatePassword(newPassword)?.addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                Toast.makeText(context, "Password updated successfully", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                        showPasswordDialog = false
+                    }
+                )
             }
         }
     }
-    
-    // Edit Profile Dialog
-    if (showEditDialog) {
-        EditProfileDialog(
-            currentUser = currentUser,
-            onDismiss = { showEditDialog = false },
-            onSave = { updatedUser ->
-                isLoading = true
-                val updates = mapOf(
-                    "fullName" to updatedUser.fullName
-                )
-                userViewModel.updateProfile(userId, updates) { success, message ->
-                    isLoading = false
-                    if (success) {
-                        userViewModel.getUserById(userId)
-                    }
-                }
-                showEditDialog = false
-            }
-        )
-    }
-    
-    // Change Password Dialog
-    if (showPasswordDialog) {
-        ChangePasswordDialog(
-            onDismiss = { showPasswordDialog = false },
-            onSave = { oldPassword, newPassword ->
-                // Handle password change
-                val user = FirebaseAuth.getInstance().currentUser
-                user?.updatePassword(newPassword)?.addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        // Password updated successfully
-                    }
-                }
-                showPasswordDialog = false
-            }
-        )
-    }
-}
-
-@Composable
-fun ProfileOptionCard(
-    icon: ImageVector,
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0x40FFFFFF)
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                tint = Color(0xFFE91E63),
-                modifier = Modifier.size(24.dp)
-            )
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = title,
-                    color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = subtitle,
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 12.sp
-                )
-            }
-            
-            Icon(
-                Icons.Default.ChevronRight,
-                contentDescription = null,
-                tint = Color.White.copy(alpha = 0.5f)
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun EditProfileDialog(
-    currentUser: UserModel?,
-    onDismiss: () -> Unit,
-    onSave: (UserModel) -> Unit
-) {
-    var fullName by remember { mutableStateOf(currentUser?.fullName ?: "") }
-    var email by remember { mutableStateOf(currentUser?.email ?: "") }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text("Edit Profile", color = Color.White)
-        },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = fullName,
-                    onValueChange = { fullName = it },
-                    label = { Text("Full Name") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedLabelColor = Color(0xFFE91E63),
-                        unfocusedLabelColor = Color.White.copy(alpha = 0.7f)
-                    )
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = false,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = Color.White.copy(alpha = 0.5f),
-                        disabledLabelColor = Color.White.copy(alpha = 0.5f)
-                    )
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    currentUser?.let {
-                        onSave(it.copy(fullName = fullName))
-                    }
-                }
-            ) {
-                Text("Save", color = Color(0xFFE91E63))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel", color = Color.White)
-            }
-        },
-        containerColor = Color(0xFF2A2A3E)
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ChangePasswordDialog(
-    onDismiss: () -> Unit,
-    onSave: (String, String) -> Unit
-) {
-    var currentPassword by remember { mutableStateOf("") }
-    var newPassword by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var showCurrentPassword by remember { mutableStateOf(false) }
-    var showNewPassword by remember { mutableStateOf(false) }
-    var showConfirmPassword by remember { mutableStateOf(false) }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text("Change Password", color = Color.White)
-        },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = currentPassword,
-                    onValueChange = { currentPassword = it },
-                    label = { Text("Current Password") },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = if (showCurrentPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { showCurrentPassword = !showCurrentPassword }) {
-                            Icon(
-                                if (showCurrentPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedLabelColor = Color(0xFFE91E63),
-                        unfocusedLabelColor = Color.White.copy(alpha = 0.7f)
-                    )
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                OutlinedTextField(
-                    value = newPassword,
-                    onValueChange = { newPassword = it },
-                    label = { Text("New Password") },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = if (showNewPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { showNewPassword = !showNewPassword }) {
-                            Icon(
-                                if (showNewPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedLabelColor = Color(0xFFE91E63),
-                        unfocusedLabelColor = Color.White.copy(alpha = 0.7f)
-                    )
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    label = { Text("Confirm New Password") },
-                    modifier = Modifier.fillMaxWidth(),
-                    visualTransformation = if (showConfirmPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        IconButton(onClick = { showConfirmPassword = !showConfirmPassword }) {
-                            Icon(
-                                if (showConfirmPassword) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                        }
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        focusedLabelColor = Color(0xFFE91E63),
-                        unfocusedLabelColor = Color.White.copy(alpha = 0.7f)
-                    )
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    if (newPassword == confirmPassword && newPassword.isNotEmpty()) {
-                        onSave(currentPassword, newPassword)
-                    }
-                },
-                enabled = newPassword == confirmPassword && newPassword.isNotEmpty() && currentPassword.isNotEmpty()
-            ) {
-                Text("Change", color = Color(0xFFE91E63))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel", color = Color.White)
-            }
-        },
-        containerColor = Color(0xFF2A2A3E)
-    )
 }

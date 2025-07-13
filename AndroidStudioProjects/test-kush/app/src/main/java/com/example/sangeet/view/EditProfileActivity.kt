@@ -16,7 +16,9 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.example.sangeet.repository.UserRepositoryImpl
 import com.example.sangeet.viewmodel.UserViewModel
 
@@ -54,7 +57,6 @@ fun EditProfileScreen(navController: NavController, userId: String) {
     var imageUrl by remember { mutableStateOf("") }
     var isSaving by remember { mutableStateOf(false) }
 
-    // Fetch user and prefill
     LaunchedEffect(Unit) {
         userViewModel.getUserById(userId)
     }
@@ -72,7 +74,7 @@ fun EditProfileScreen(navController: NavController, userId: String) {
             title = { Text("Edit Profile", color = Color.White, fontWeight = FontWeight.Bold) },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
@@ -85,6 +87,18 @@ fun EditProfileScreen(navController: NavController, userId: String) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // 🔍 Profile Image Preview
+            if (imageUrl.isNotBlank()) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = "Profile Preview",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(40.dp))
+                        .align(Alignment.CenterHorizontally)
+                )
+            }
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -129,7 +143,7 @@ fun EditProfileScreen(navController: NavController, userId: String) {
 
                     isSaving = true
                     val updatedData = mapOf(
-                        "displayName" to name,
+                        "fullName" to name,
                         "bio" to bio,
                         "profileImageUrl" to imageUrl
                     )
@@ -147,7 +161,7 @@ fun EditProfileScreen(navController: NavController, userId: String) {
                 if (isSaving) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp))
                 } else {
-                    Icon(imageVector = Icons.Default.Check, contentDescription = "Save", modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Check, contentDescription = "Save", modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("Save Changes", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
                 }

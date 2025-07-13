@@ -1,68 +1,101 @@
 package com.example.sangeet.component
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlaylistPlay
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.compose.foundation.lazy.items
+import com.example.sangeet.navigation.Screen
+
+data class QuickItem(
+    val title: String,
+    val icon: ImageVector,
+    val route: String
+)
 
 @Composable
-fun QuickAccessSection(navController: NavController, userId: String) {
-    Text(
-        text = "Quick Access",
-        color = Color.White,
-        fontWeight = FontWeight.Bold,
-        fontSize = 18.sp
-    )
+fun QuickAccessSection(
+    navController: NavController,
+    userId: String
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        Text(
+            text = "Quick Access",
+            color = Color.White,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
 
-    Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-    LazyRow {
-        items(
-            listOf(
-                Triple("Upload Music", Icons.Default.CloudUpload, "upload_music/$userId"),
-                Triple("My Favorites", Icons.Default.Favorite, "favorites/$userId"),
-                Triple("My Playlists", Icons.Default.PlaylistPlay, "playlists/$userId"),
-                Triple("Browse Artists", Icons.Default.Person, "artists")
-            )
-        ) { (title, icon, route) ->
-            Card(
-                modifier = Modifier
-                    .padding(end = 12.dp)
-                    .clickable { navController.navigate(route) },
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.3f))
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Icon(icon, contentDescription = title, tint = Color(0xFFE91E63), modifier = Modifier.size(32.dp))
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(title, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        val quickItems = listOf(
+            QuickItem("Upload Music", Icons.Default.CloudUpload, Screen.UploadMusic(userId).route),
+            QuickItem("My Favorites", Icons.Default.Favorite, Screen.Favorites(userId).route),
+//            QuickItem("My Playlists", Icons.Default.Playlist(userId).route),
+            QuickItem("Browse Artists", Icons.Default.Person, Screen.Artists.route)
+        )
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = 4.dp)
+        ) {
+            items(quickItems) { item ->
+                QuickItemCard(item = item) {
+                    navController.navigate(item.route)
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun QuickItemCard(
+    item: QuickItem,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .width(120.dp)
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.3f))
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = item.icon,
+                contentDescription = "${item.title} Icon",
+                tint = Color(0xFFE91E63),
+                modifier = Modifier.size(32.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = item.title,
+                color = Color.White,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
+            )
         }
     }
 }
