@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginScreen() {
+fun LoginBody() {
     // Updated gradient background colors to match uploaded image
     val gradient = Brush.verticalGradient(
         colors = listOf(
@@ -44,8 +44,7 @@ fun LoginScreen() {
         ) {
             Row {
                 Text("Welcome to ", color = Color.White, fontSize = 14.sp)
-                Text(
-                    "Sangeet",
+                Text(                    "Sangeet",
                     color = Color(0xFFE91E63),
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
@@ -145,7 +144,7 @@ fun LoginScreen() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewLoginScreen() {
-    LoginScreen()
+    LoginBody()
 }
 
 

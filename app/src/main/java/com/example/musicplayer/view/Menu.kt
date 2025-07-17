@@ -10,6 +10,7 @@ import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
 @Composable
 fun MenuScreen() {
@@ -98,5 +99,10 @@ fun BottomNavBar(modifier: Modifier = Modifier) {
             label = { Text("Your Library") }
         )
     }
+}
+@Preview(showBackground = true)
+@Composable
+fun PreviewMenuScreen() {
+    LoginBody()
 }
 

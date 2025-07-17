@@ -1,5 +1,8 @@
 package com.example.musicplayer
-
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -20,8 +23,18 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 
+class Playlist2Activity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            Playlist2Body()
+        }
+    }
+}
+
 @Composable
-fun PlaylistScreen() {
+fun Playlist2Body() {
     val gradient = Brush.verticalGradient(
         colors = listOf(Color(0xFF240046), Color(0xFF5A189A))
     )
@@ -29,22 +42,23 @@ fun PlaylistScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(brush = gradient)
+            .background(gradient)
     ) {
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             TopAppBarSection()
             Spacer(modifier = Modifier.height(20.dp))
-            PlaylistsSection()
+            PlaylistSectionUI()
             Spacer(modifier = Modifier.height(20.dp))
-            LikedSongsSection()
+            FavouriteSection()
             Spacer(modifier = Modifier.height(80.dp))
         }
 
-        BottomNavigationBar()
+        BottomNavigationBar(modifier = Modifier.align(Alignment.BottomCenter))
     }
 }
 
@@ -52,7 +66,8 @@ fun PlaylistScreen() {
 fun TopAppBarSection() {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
             Text("Hi Eva,", color = Color.White, fontSize = 20.sp)
@@ -71,7 +86,7 @@ fun TopAppBarSection() {
 }
 
 @Composable
-fun PlaylistsSection() {
+fun PlaylistSectionUI() {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -82,12 +97,11 @@ fun PlaylistsSection() {
     }
 
     Spacer(modifier = Modifier.height(12.dp))
-    //spacer
 
     val playlists = listOf(
-        Pair("Clear Mind", "https://i.imgur.com/1Yc9yOE.png"),
+        Pair("Clear Mind", "https://i.imgur.com/X9tD1Ad.png"),
         Pair("Sound of Nature", "https://i.imgur.com/2Kyj3cF.png"),
-        Pair("Relax Songs", "https://i.imgur.com/X9tD1Ad.png")
+        Pair("Relax Songs", "https://i.imgur.com/3gzHT8B.png")
     )
 
     Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
@@ -115,10 +129,10 @@ fun PlaylistsSection() {
         }
     }
 }
-//Composable
+
 @Composable
-fun LikedSongsSection() {
-    Text("Liked Songs", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+fun FavouriteSection() {
+    Text("Favourite", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
     Spacer(modifier = Modifier.height(12.dp))
 
     val songs = listOf(
@@ -131,15 +145,16 @@ fun LikedSongsSection() {
 
     Column {
         songs.forEach {
-            RecentlyPlayedItem(title = it.first, artist = it.second, imageUrl = it.third)
+            FavouriteItem(title = it.first, artist = it.second, imageUrl = it.third)
             Spacer(modifier = Modifier.height(10.dp))
         }
     }
 }
 
 @Composable
-fun RecentlyPlayedItem(title: String, artist: String, imageUrl: String) {
+fun FavouriteItem(title: String, artist: String, imageUrl: String) {
     Row(
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         AsyncImage(
@@ -162,7 +177,6 @@ fun RecentlyPlayedItem(title: String, artist: String, imageUrl: String) {
         }
 
         Icon(
-            //Icon
             imageVector = Icons.Default.FavoriteBorder,
             contentDescription = null,
             tint = Color.White
@@ -171,28 +185,29 @@ fun RecentlyPlayedItem(title: String, artist: String, imageUrl: String) {
 }
 
 @Composable
-fun BottomNavigationBar1() {
-    //modifier
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-        NavigationBar(containerColor = Color(0xFF3C096C)) {
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                label = { Text("Home") },
-                selected = false,
-                onClick = {}
-            )
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.Search, contentDescription = null) },
-                label = { Text("Search") },
-                selected = false,
-                onClick = {}
-            )
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.LibraryMusic, contentDescription = null) },
-                label = { Text("Your Library") },
-                selected = true,
-                onClick = {}
-            )
-        }
+fun BottomNavigationBar(modifier: Modifier = Modifier) {
+    NavigationBar(
+        modifier = modifier,
+        containerColor = Color(0xFF3C096C)
+    ) {
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.Home, contentDescription = null) },
+            label = { Text("Home") },
+            selected = true,
+            onClick = {}
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.Search, contentDescription = null) },
+            label = { Text("Search") },
+            selected = false,
+            onClick = {}
+        )
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.LibraryMusic, contentDescription = null) },
+            label = { Text("Your Library") },
+            selected = false,
+            onClick = {}
+        )
     }
 }
+
