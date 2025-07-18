@@ -99,6 +99,7 @@ fun PlayingNowScreen() {
                 .padding(padding)
         ) {
             Column(
+                //modifier
 
                 //Column
                 modifier = Modifier
