@@ -1,157 +1,109 @@
 package com.example.sangeet.repository
 
 import com.example.sangeet.model.MusicModel
-import io.appwrite.Client
-import io.appwrite.ID
-import io.appwrite.Permission
-import io.appwrite.Role
-import io.appwrite.exceptions.AppwriteException
-import io.appwrite.services.Account
-import io.appwrite.services.Databases
-import io.appwrite.Query
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.google.firebase.database.*
 
-class MusicRepositoryImpl(
-    private val client: Client,
-    private val databaseId: String,
-    private val collectionId: String
-) : MusicRepository {
+class MusicRepositoryImpl : MusicRepository {
 
-    private val account = Account(client)
-    private val databases = Databases(client)
-
-    private suspend fun getCurrentUserId(): String? {
-        return try {
-            account.get().id
-        } catch (e: AppwriteException) {
-            null
-        }
-    }
+    private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
+    private val ref: DatabaseReference = database.reference.child("Musics")
 
     override fun addMusic(music: MusicModel, callback: (Boolean, String) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val userId = getCurrentUserId()
-            if (userId == null) {
-                callback(false, "User not authenticated")
-                return@launch
-            }
-
-            try {
-                databases.createDocument(
-                    databaseId = databaseId,
-                    collectionId = collectionId,
-                    documentId = ID.unique(),
-                    data = mapOf(
-                        "musicName" to music.musicName,
-                        "description" to music.description,
-                        "imageUrl" to music.imageUrl,
-                        "userId" to userId
-                    ),
-                    permissions = listOf(
-                        Permission.read(Role.user(userId)),
-                        Permission.write(Role.user(userId))
-                    )
-                )
-                callback(true, "Music added successfully")
-            } catch (e: AppwriteException) {
-                callback(false, e.message ?: "Failed to add music")
-            }
+        val musicId = if (music.musicId.isEmpty()) ref.push().key ?: "" else music.musicId
+        if (musicId.isEmpty()) {
+            callback(false, "Failed to generate music ID")
+            return
         }
+        
+        val newMusic = music.copy(musicId = musicId)
+        ref.child(musicId).setValue(newMusic)
+            .addOnCompleteListener { task ->
+                callback(task.isSuccessful, task.exception?.message ?: "Music added successfully!")
+            }
     }
+
 
     override fun updateMusic(
         musicId: String,
         updatedData: Map<String, Any?>,
         callback: (Boolean, String) -> Unit
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                databases.updateDocument(
-                    databaseId = databaseId,
-                    collectionId = collectionId,
-                    documentId = musicId,
-                    data = updatedData
-                )
-                callback(true, "Music updated successfully")
-            } catch (e: AppwriteException) {
-                callback(false, e.message ?: "Failed to update music")
+        ref.child(musicId).updateChildren(updatedData).addOnCompleteListener {
+            if (it.isSuccessful) {
+                callback(true, "Music updated successfully!")
+            } else {
+                callback(false, it.exception?.message ?: "Failed to update music.")
             }
         }
     }
 
-    override fun deleteMusic(musicId: String, callback: (Boolean, String) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                databases.deleteDocument(
-                    databaseId = databaseId,
-                    collectionId = collectionId,
-                    documentId = musicId
-                )
-                callback(true, "Music deleted successfully")
-            } catch (e: AppwriteException) {
-                callback(false, e.message ?: "Failed to delete music")
+    override fun deleteMusic(
+        musicId: String,
+        callback: (Boolean, String) -> Unit
+    ) {
+        ref.child(musicId).removeValue().addOnCompleteListener {
+            if (it.isSuccessful) {
+                callback(true, "Music deleted successfully!")
+            } else {
+                callback(false, it.exception?.message ?: "Failed to delete music.")
             }
         }
     }
 
     override fun getAllMusics(callback: (Boolean, String, List<MusicModel>?) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val userId = getCurrentUserId()
-            if (userId == null) {
-                callback(false, "User not authenticated", null)
-                return@launch
-            }
-
-            try {
-                val result = databases.listDocuments(
-                    databaseId = databaseId,
-                    collectionId = collectionId,
-                    queries = listOf(Query.equal("userId", userId))
-                )
-
-                val musics = result.documents.map { doc ->
-                    MusicModel(
-                        musicId = doc.id,
-                        musicName = doc.data["musicName"] as String,
-                        description = doc.data["description"] as String,
-                        imageUrl = doc.data["imageUrl"] as String,
-                        userId = doc.data["userId"] as String
-                    )
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val allMusics = mutableListOf<MusicModel>()
+                for (eachMusic in snapshot.children) {
+                    val music = eachMusic.getValue(MusicModel::class.java)
+                    if (music != null) {
+                        allMusics.add(music)
+                    }
                 }
-
-                callback(true, "Success", musics)
-            } catch (e: AppwriteException) {
-                callback(false, e.message ?: "Failed to fetch musics", null)
+                callback(true, "Musics fetched successfully", allMusics)
             }
-        }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback(false, error.message, null)
+            }
+        })
     }
 
     override fun getMusicById(
         musicId: String,
         callback: (Boolean, String, MusicModel?) -> Unit
     ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val doc = databases.getDocument(
-                    databaseId = databaseId,
-                    collectionId = collectionId,
-                    documentId = musicId
-                )
-
-                val music = MusicModel(
-                    musicId = doc.id,
-                    musicName = doc.data["musicName"] as String,
-                    description = doc.data["description"] as String,
-                    imageUrl = doc.data["imageUrl"] as String,
-                    userId = doc.data["userId"] as String
-                )
-
-                callback(true, "Success", music)
-            } catch (e: AppwriteException) {
-                callback(false, e.message ?: "Failed to fetch music", null)
+        ref.child(musicId).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val music = snapshot.getValue(MusicModel::class.java)
+                if (music != null) {
+                    callback(true, "Music fetched successfully!", music)
+                } else {
+                    callback(false, "Music not found", null)
+                }
             }
-        }
+
+            override fun onCancelled(error: DatabaseError) {
+                callback(false, error.message, null)
+            }
+        })
+    }
+    fun getRecentlyPlayed(userId: String, callback: (Boolean, String, List<MusicModel>?) -> Unit) {
+        ref.orderByChild("playCount")
+            .limitToLast(10)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val recent = mutableListOf<MusicModel>()
+                    for (child in snapshot.children) {
+                        val music = child.getValue(MusicModel::class.java)
+                        if (music != null) recent.add(music)
+                    }
+                    callback(true, "Fetched recently played", recent.reversed()) // Most recent first
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    callback(false, error.message, null)
+                }
+            })
     }
 }

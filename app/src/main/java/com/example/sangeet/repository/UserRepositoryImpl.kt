@@ -1,164 +1,200 @@
 package com.example.sangeet.repository
 
 import com.example.sangeet.model.UserModel
-import io.appwrite.Client
-import io.appwrite.ID
-import io.appwrite.Permission
-import io.appwrite.Role
-import io.appwrite.exceptions.AppwriteException
-import io.appwrite.services.Account
-import io.appwrite.services.Databases
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
-class UserRepositoryImpl(
-    private val client: Client,
-    private val databaseId: String,
-    private val collectionId: String
-) : UserRepository {
+class UserRepositoryImpl : UserRepository {
 
-    private val account = Account(client)
-    private val databases = Databases(client)
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val ref: DatabaseReference = FirebaseDatabase.getInstance().getReference("Users")
 
+    // 🔐 Authentication
     override fun login(email: String, password: String, callback: (Boolean, String) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                account.createEmailSession(email, password)
-                callback(true, "Login successful")
-            } catch (e: AppwriteException) {
-                callback(false, e.message ?: "Login failed")
-            }
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            callback(task.isSuccessful, task.exception?.message ?: "Login successful")
         }
     }
 
-    override fun register(
-        fullName: String,
-        email: String,
-        password: String,
-        callback: (Boolean, String, String) -> Unit
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val user = account.create(
-                    userId = ID.unique(),
-                    email = email,
-                    password = password,
-                    name = fullName // passing fullname to appwrite
-                )
-                callback(true, "Registration successful", user.id)
-            } catch (e: AppwriteException) {
-                callback(false, e.message ?: "Registration failed", "")
-            }
-        }
-    }
-
-    override fun addUserToDatabase(userId: String, userModel: UserModel, callback: (Boolean, String) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                databases.createDocument(
-                    databaseId = databaseId,
-                    collectionId = collectionId,
-                    documentId = userId,
-                    data = mapOf(
-                        "userId" to userModel.userId,
-                        "fullName" to userModel.fullName,
-                        "email" to userModel.email
-                    ),
-                    permissions = listOf(
-                        Permission.read(Role.user(userId)),
-                        Permission.write(Role.user(userId))
-                    )
-                )
-                callback(true, "User added to database")
-            } catch (e: AppwriteException) {
-                callback(false, e.message ?: "Failed to add user")
+    override fun register(email: String, password: String, callback: (Boolean, String, String) -> Unit) {
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            val uid = auth.currentUser?.uid.orEmpty()
+            if (task.isSuccessful) {
+                callback(true, "Registration successful", uid)
+            } else {
+                callback(false, task.exception?.message ?: "Registration failed", "")
             }
         }
     }
 
     override fun forgetPassword(email: String, callback: (Boolean, String) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                account.createRecovery(email, "https://your-app-url.com/recovery")
-                callback(true, "Password reset link sent")
-            } catch (e: AppwriteException) {
-                callback(false, e.message ?: "Failed to send reset link")
+        auth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
+            callback(task.isSuccessful, task.exception?.message ?: "Reset link sent")
+        }
+    }
+
+    override fun updatePassword(userId: String, oldPassword: String, newPassword: String, callback: (Boolean, String) -> Unit) {
+        val user = auth.currentUser
+        val email = user?.email
+        if (user == null || email.isNullOrEmpty()) {
+            callback(false, "User not logged in")
+            return
+        }
+
+        val credential = EmailAuthProvider.getCredential(email, oldPassword)
+        user.reauthenticate(credential).addOnCompleteListener { authTask ->
+            if (authTask.isSuccessful) {
+                user.updatePassword(newPassword).addOnCompleteListener { updateTask ->
+                    callback(updateTask.isSuccessful, updateTask.exception?.message ?: "Password updated")
+                }
+            } else {
+                callback(false, authTask.exception?.message ?: "Re-authentication failed")
             }
         }
     }
 
-    override fun updatePassword(newPassword: String, callback: (Boolean, String) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                account.updatePassword(password = newPassword)
-                callback(true, "Password updated")
-            } catch (e: AppwriteException) {
-                callback(false, e.message ?: "Failed to update password")
-            }
-        }
+    override fun getCurrentUser(): FirebaseUser? = auth.currentUser
+
+    override fun logout(callback: () -> Unit) {
+        auth.signOut()
+        callback()
     }
 
-    override fun getUserById(userId: String, callback: (UserModel?) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val doc = databases.getDocument(
-                    databaseId = databaseId,
-                    collectionId = collectionId,
-                    documentId = userId
-                )
-                val user = UserModel(
-                    userId = doc.data["userId"] as String,
-                    fullName = doc.data["fullName"] as String,
-                    email = doc.data["email"] as String
-                )
-                callback(user)
-            } catch (e: AppwriteException) {
-                callback(null)
-            }
+    // 🗂️ Profile Management
+    override fun addUserToDatabase(userId: String, userModel: UserModel, callback: (Boolean, String) -> Unit) {
+        ref.child(userId).setValue(userModel).addOnCompleteListener { task ->
+            callback(task.isSuccessful, task.exception?.message ?: "User added")
         }
     }
 
     override fun updateProfile(userId: String, updates: Map<String, Any?>, callback: (Boolean, String) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                databases.updateDocument(
-                    databaseId = databaseId,
-                    collectionId = collectionId,
-                    documentId = userId,
-                    data = updates
-                )
-                callback(true, "Profile updated")
-            } catch (e: AppwriteException) {
-                callback(false, e.message ?: "Failed to update profile")
-            }
+        ref.child(userId).updateChildren(updates).addOnCompleteListener { task ->
+            callback(task.isSuccessful, task.exception?.message ?: "Profile updated")
         }
     }
 
-    override fun getCurrentUser(callback: (UserModel?) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val user = account.get()
-                val userModel = UserModel(
-                    userId = user.id,
-                    fullName = user.name,
-                    email = user.email
-                )
-                callback(userModel)
-            } catch (e: AppwriteException) {
-                callback(null)
+    override fun getUserById(userId: String, callback: (Boolean, String, UserModel?) -> Unit) {
+        ref.child(userId).get()
+            .addOnSuccessListener { snapshot ->
+                val user = snapshot.getValue(UserModel::class.java)
+                callback(true, "User retrieved successfully", user)
             }
+            .addOnFailureListener {
+                callback(false, it.message ?: "Failed to retrieve user", null)
+            }
+    }
+
+    // 🎧 Favorites, Playlists, Following
+    private fun updateStringListField(userId: String, field: String, value: String, add: Boolean, callback: (Boolean, String) -> Unit) {
+        ref.child(userId).child(field).get().addOnSuccessListener { snapshot ->
+            val currentList = (snapshot.value as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+            val updatedList = currentList.toMutableList().apply {
+                if (add) add(value) else remove(value)
+            }
+            ref.child(userId).child(field).setValue(updatedList).addOnCompleteListener { task ->
+                callback(task.isSuccessful, task.exception?.message ?: "$field updated")
+            }
+        }.addOnFailureListener {
+            callback(false, it.message ?: "Failed to update $field")
         }
     }
 
-    override fun logout(callback: () -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                account.deleteSessions()
-            } catch (_: AppwriteException) {
-                // Ignore errors on logout
-            } finally {
-                callback()
+    override fun addFavoriteToUser(userId: String, favoriteId: String, callback: (Boolean, String) -> Unit) {
+        updateStringListField(userId, "favoriteIds", favoriteId, true, callback)
+    }
+
+    override fun removeFavoriteFromUser(userId: String, favoriteId: String, callback: (Boolean, String) -> Unit) {
+        updateStringListField(userId, "favoriteIds", favoriteId, false, callback)
+    }
+
+    override fun addPlaylistToUser(userId: String, playlistId: String, callback: (Boolean, String) -> Unit) {
+        updateStringListField(userId, "playlistIds", playlistId, true, callback)
+    }
+
+    override fun removePlaylistFromUser(userId: String, playlistId: String, callback: (Boolean, String) -> Unit) {
+        updateStringListField(userId, "playlistIds", playlistId, false, callback)
+    }
+
+    override fun addFollowedArtistToUser(userId: String, artistId: String, callback: (Boolean, String) -> Unit) {
+        updateStringListField(userId, "followedArtistIds", artistId, true, callback)
+    }
+
+    override fun removeFollowedArtistFromUser(userId: String, artistId: String, callback: (Boolean, String) -> Unit) {
+        updateStringListField(userId, "followedArtistIds", artistId, false, callback)
+    }
+
+    override fun addUploadedMusicToUser(userId: String, musicId: String, callback: (Boolean, String) -> Unit) {
+        ref.child(userId).child("uploadedMusicIds").get().addOnSuccessListener { snapshot ->
+            val current = (snapshot.value as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+            val updated = current.toMutableList().apply { add(musicId) }
+            val updates = mapOf("uploadedMusicIds" to updated, "totalUploads" to updated.size)
+            ref.child(userId).updateChildren(updates).addOnCompleteListener { task ->
+                callback(task.isSuccessful, task.exception?.message ?: "Music upload recorded")
+            }
+        }.addOnFailureListener {
+            callback(false, it.message ?: "Failed to record music upload")
+        }
+    }
+
+    // 📊 Stats
+    override fun incrementUserPlayCount(userId: String, callback: (Boolean, String) -> Unit) {
+        ref.child(userId).child("totalPlaysCount").get().addOnSuccessListener { snapshot ->
+            val current = snapshot.getValue(Int::class.java) ?: 0
+            ref.child(userId).child("totalPlaysCount").setValue(current + 1).addOnCompleteListener { task ->
+                callback(task.isSuccessful, task.exception?.message ?: "Play count updated")
+            }
+        }.addOnFailureListener {
+            callback(false, it.message ?: "Failed to update play count")
+        }
+    }
+
+    override fun incrementUserUploadCount(userId: String, callback: (Boolean, String) -> Unit) {
+        ref.child(userId).child("totalUploads").get().addOnSuccessListener { snapshot ->
+            val current = snapshot.getValue(Int::class.java) ?: 0
+            ref.child(userId).child("totalUploads").setValue(current + 1).addOnCompleteListener { task ->
+                callback(task.isSuccessful, task.exception?.message ?: "Upload count updated")
+            }
+        }.addOnFailureListener {
+            callback(false, it.message ?: "Failed to update upload count")
+        }
+    }
+
+    override fun updateLastLoginTime(userId: String, callback: (Boolean, String) -> Unit) {
+        ref.child(userId).child("lastLoginAt").setValue(System.currentTimeMillis()).addOnCompleteListener { task ->
+            callback(task.isSuccessful, task.exception?.message ?: "Last login updated")
+        }
+    }
+
+    // 🔎 Discovery
+    override fun searchUsers(query: String, callback: (List<UserModel>) -> Unit) {
+        ref.orderByChild("fullName").startAt(query).endAt(query + "\uf8ff").get().addOnSuccessListener { snapshot ->
+            val results = snapshot.children.mapNotNull { it.getValue(UserModel::class.java) }
+            callback(results)
+        }.addOnFailureListener {
+            callback(emptyList())
+        }
+    }
+
+    override fun getUsersByIds(userIds: List<String>, callback: (List<UserModel>) -> Unit) {
+        if (userIds.isEmpty()) {
+            callback(emptyList())
+            return
+        }
+
+        val results = mutableListOf<UserModel>()
+        var completed = 0
+
+        userIds.forEach { id ->
+            ref.child(id).get().addOnSuccessListener { snapshot ->
+                snapshot.getValue(UserModel::class.java)?.let { results.add(it) }
+                completed++
+                if (completed == userIds.size) callback(results)
+            }.addOnFailureListener {
+                completed++
+                if (completed == userIds.size) callback(results)
             }
         }
     }

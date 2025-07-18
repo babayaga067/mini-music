@@ -1,10 +1,16 @@
 package com.example.sangeet.model
 
-
 data class MusicModel(
-    val musicId : String = "",
-    val  musicName: String = "",
-    val description : String = "",
-    val imageUrl: String ="",
-    val userId: String = "", //Reference only
+    var musicId: String = "",
+    var musicName: String = "",
+    var description: String = "",
+    var imageUrl: String = "",
+    var audioUrl: String = "",
+    var artistId: String = "",
+    var artistName: String = "",
+    var duration: Long = 0,
+    var genre: String = "",
+    var uploadedBy: String = "",
+    var uploadedAt: Long = System.currentTimeMillis(),
+    var playCount: Int = 0
 )
