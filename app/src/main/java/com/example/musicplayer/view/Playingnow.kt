@@ -2,6 +2,7 @@ package com.example.musicplayer.view
 //import
 
 import androidx.compose.foundation.Image
+//error
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
