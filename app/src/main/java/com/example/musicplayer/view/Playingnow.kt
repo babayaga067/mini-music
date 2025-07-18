@@ -36,6 +36,7 @@ class PlayingnowActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PlayingNowScreen()
+            //playingnowscreen
         }
     }
 }
