@@ -165,6 +165,7 @@ fun PlayingNowScreen() {
                 ) {
                     Text("2:34", color = Color.White, fontSize = 12.sp)
                     Text("3:45", color = Color.White, fontSize = 12.sp)
+                    //text123
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
