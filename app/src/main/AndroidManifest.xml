@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.musicplayer">
 
     <application
         android:allowBackup="true"
@@ -10,68 +11,69 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Musicplayer"
-        tools:targetApi="31">
+        android:theme="@style/Theme.Musicplayer">
+
+        <!-- 🚀 LAUNCHER: This launches PlayingNowScreen via MainActivity -->
         <activity
-            android:name=".Menu"
+            android:name=".view.MainActivity"
             android:exported="true"
-            android:label="@string/title_activity_menu"
             android:theme="@style/Theme.Musicplayer">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".search"
-            android:exported="true"
-            android:label="@string/title_activity_search"
-            android:theme="@style/Theme.Musicplayer">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <!-- Other screens (used for navigation or future use) -->
         <activity
-            android:name=".Playingnow"
+            android:name=".view.PlayingnowActivity"
             android:exported="true"
             android:label="@string/title_activity_playingnow"
-            android:theme="@style/Theme.Musicplayer">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".Playlist"
-            android:exported="false"
-            android:label="@string/title_activity_playlist"
             android:theme="@style/Theme.Musicplayer" />
+
         <activity
-            android:name=".Library"
+            android:name=".view.LibraryActivity"
             android:exported="true"
             android:label="@string/title_activity_library"
-            android:theme="@style/Theme.Musicplayer">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@style/Theme.Musicplayer" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".view.LoginActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.Musicplayer">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:label="@string/title_activity_login"
+            android:theme="@style/Theme.Musicplayer" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity
+            android:name=".view.LoginActivityNew"
+            android:exported="true"
+            android:label="@string/title_activity_login_new"
+            android:theme="@style/Theme.Musicplayer" />
+
+        <activity
+            android:name=".view.Menu"
+            android:exported="true"
+            android:label="@string/title_activity_menu"
+            android:theme="@style/Theme.Musicplayer" />
+
+        <activity
+            android:name=".view.MyLibraryActivity"
+            android:exported="true"
+            android:label="Library"
+            android:theme="@style/Theme.Musicplayer" />
+
+        <!-- ✅ New: SearchActivity -->
+        <activity
+            android:name=".view.SearchActivity"
+            android:exported="true"
+            android:label="Search"
+            android:theme="@style/Theme.Musicplayer" />
+
+        <!-- ✅ New: PlaylistActivity -->
+        <activity
+            android:name=".view.PlaylistActivity"
+            android:exported="true"
+            android:label="Playlists"
+            android:theme="@style/Theme.Musicplayer" />
+
     </application>
-
 </manifest>

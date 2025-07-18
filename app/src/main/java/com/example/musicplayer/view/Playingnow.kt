@@ -1,4 +1,4 @@
-package com.example.musicplayer
+package com.example.musicplayer.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,6 +21,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.musicplayer.R
+//e3e
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+
+
+class PlayingnowActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            PlayingNowScreen()
+        }
+    }
+}
 
 @Composable
 //Composable
@@ -32,7 +47,7 @@ fun PlayingNowScreen() {
     )
 
     val moreSongs = listOf(
-        Triple("Blue", "Y!ung Kai", R.drawable.blue),
+        Triple("Blue", "Young Kai", R.drawable.cruel),
         Triple("Cruel Summer", "Taylor Swift", R.drawable.cruel)
     )
 
@@ -93,7 +108,7 @@ fun PlayingNowScreen() {
 
                 // Album Art
                 Image(
-                    painter = painterResource(id = R.drawable.night_changes),
+                    painter = painterResource(id = R.drawable.cruel),
                     contentDescription = "Album Art",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier

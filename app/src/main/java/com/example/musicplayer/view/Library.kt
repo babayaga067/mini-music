@@ -1,5 +1,9 @@
-package com.example.musicplayer
+package com.example.musicplayer.view
 
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,6 +32,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.musicplayer.R
+
+class MyLibraryActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            LibraryScreen()
+        }
+    }
+}
 
 @Composable
 fun LibraryScreen() {
@@ -36,7 +51,7 @@ fun LibraryScreen() {
     )
 
     Scaffold(
-        bottomBar = { BottomNavigationBar() },
+        bottomBar = { BottomNavBar3() },
         containerColor = Color.Transparent
     ) { paddingValues ->
         Box(
@@ -93,12 +108,12 @@ fun LibraryScreen() {
                 Spacer(modifier = Modifier.height(12.dp))
 
                 val recentlyPlayed = listOf(
-                    Song("Dandelions", "Ruth B", R.drawable.dandelions),
-                    Song("Blue", "Vung Kai", R.drawable.blue),
-                    Song("Night Changes", "One Direction", R.drawable.night_changes),
-                    Song("Dhaiyra", "Sajan Raj Vaidya", R.drawable.dhaiyra),
-                    Song("Sarara Sarara", "Kefir Singh Limba", R.drawable.sarara),
-                    Song("Furfuri", "", R.drawable.furfuri)
+                    Song("Dandelions", "Ruth B", R.drawable.cruel),
+                    Song("Blue", "Vung Kai", R.drawable.cruel),
+                    Song("Night Changes", "One Direction", R.drawable.cruel),
+                    Song("Dhaiyra", "Sajan Raj Vaidya", R.drawable.cruel),
+                    Song("Sarara Sarara", "Kefir Singh Limba", R.drawable.cruel),
+                    Song("Furfuri", "", R.drawable.cruel)
                 )
 
                 LazyColumn {
@@ -162,32 +177,39 @@ fun SongItem(song: Song) {
     }
 }
 
+
+
 @Composable
-fun BottomNavigationBar() {
-    NavigationBar(
-        containerColor = Color(0xFF3D0E5C),
-        contentColor = Color.White
-    ) {
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Home, contentDescription = null) },
-            label = { Text("Home") },
-            selected = false,
-            onClick = {}
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Search, contentDescription = null) },
-            label = { Text("Search") },
-            selected = false,
-            onClick = {}
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.LibraryMusic, contentDescription = null) },
-            label = { Text("Your Library") },
-            selected = true,
-            onClick = {}
-        )
+fun BottomNavBar3() {
+    val navItems = listOf("Home", "Search", "Your Library")
+
+    // Using the style and structure from your HomeScreen code
+    NavigationBar(containerColor = Color(0xFF4C005F)) { // Using the purple from HomeScreen
+        navItems.forEachIndexed { index, item ->
+            NavigationBarItem(
+                icon = {
+                    when (index) {
+                        0 -> Icon(Icons.Default.Home, contentDescription = "Home")
+                        1 -> Icon(Icons.Default.Search, contentDescription = "Search")
+                        2 -> Icon(Icons.Default.LibraryMusic, contentDescription = "Library") // Icon from HomeScreen
+                    }
+                },
+                label = { Text(item) },
+                // Set 'selected' to true for the "Your Library" item (index 2)
+                selected = index == 3,
+                onClick = { /* Handle navigation */ },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.White,
+                    selectedTextColor = Color.White,
+                    unselectedIconColor = Color.LightGray,
+                    unselectedTextColor = Color.LightGray,
+                    indicatorColor = Color.Transparent // No indicator bubble
+                )
+            )
+        }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewLibraryScreen() {

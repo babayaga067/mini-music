@@ -1,21 +1,40 @@
-package com.example.musicplayer
-import androidx.compose.foundation.*
+package com.example.musicplayer.view
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+class Menu : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MenuScreen()
+        }
+    }
+}
+
 @Composable
 fun MenuScreen() {
     val gradient = Brush.verticalGradient(
-        colors = listOf(Color(0xFF4B0082), Color(0xFF8A2BE2)) // Deep purple gradient
+        colors = listOf(Color(0xFF4B0082), Color(0xFF8A2BE2)) // Indigo to violet
     )
 
     Box(
@@ -23,54 +42,67 @@ fun MenuScreen() {
             .fillMaxSize()
             .background(gradient)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .padding(bottom = 72.dp) // Avoid overlap with bottom nav
+        ) {
             TopBar()
             Spacer(modifier = Modifier.height(32.dp))
-            Text("Welcome  back!", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "Welcome back!",
+                color = Color.White,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.Bold
+            )
             Spacer(modifier = Modifier.height(24.dp))
             MenuButton("Home")
             MenuButton("Profile")
             MenuButton("Help and Support")
         }
 
-        BottomNavBar(Modifier.align(Alignment.BottomCenter))
+        BottomNavBar(modifier = Modifier.align(Alignment.BottomCenter))
     }
 }
 
 @Composable
 fun TopBar() {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(Icons.Default.Menu, contentDescription = null, tint = Color.White)
-        Text("Menu", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Spacer(modifier = Modifier.width(24.dp)) // For symmetry with menu icon
+        Icon(
+            imageVector = Icons.Default.Menu,
+            contentDescription = "Menu",
+            tint = Color.White,
+            modifier = Modifier.size(28.dp)
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("E", color = Color.Black, fontWeight = FontWeight.Bold)
+        }
     }
 }
 
 @Composable
-fun MenuButton(text: String) {
+fun MenuButton(title: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.White.copy(alpha = 0.2f))
-            .clickable { }
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White.copy(alpha = 0.1f))
+            .clickable { /* TODO: Handle click */ }
+            .padding(16.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Color.White)
-        }
+        Text(title, color = Color.White, fontSize = 18.sp)
     }
 }
 
@@ -78,31 +110,54 @@ fun MenuButton(text: String) {
 fun BottomNavBar(modifier: Modifier = Modifier) {
     NavigationBar(
         modifier = modifier,
-        containerColor = Color(0x55000000)
+        containerColor = Color(0xFF3C096C)
     ) {
         NavigationBarItem(
+            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+            label = { Text("Home") },
             selected = false,
-            onClick = {},
-            icon = { Icon(Icons.Default.Home, contentDescription = null) },
-            label = { Text("Home") }
+            onClick = { /* TODO */ },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,
+                selectedTextColor = Color.White,
+                unselectedIconColor = Color.LightGray,
+                unselectedTextColor = Color.LightGray,
+                indicatorColor = Color.Transparent
+            )
         )
+
         NavigationBarItem(
+            icon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+            label = { Text("Search") },
             selected = false,
-            onClick = {},
-            icon = { Icon(Icons.Default.Search, contentDescription = null) },
-            label = { Text("Search") }
+            onClick = { /* TODO */ },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,
+                selectedTextColor = Color.White,
+                unselectedIconColor = Color.White,
+                unselectedTextColor = Color.White,
+                indicatorColor = Color.Transparent
+            )
         )
+
         NavigationBarItem(
+            icon = { Icon(Icons.Default.LibraryMusic, contentDescription = "Library") },
+            label = { Text("Library") },
             selected = true,
-            onClick = {},
-            icon = { Icon(Icons.Default.LibraryMusic, contentDescription = null) },
-            label = { Text("Your Library") }
+            onClick = { /* TODO */ },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,
+                selectedTextColor = Color.White,
+                unselectedIconColor = Color.White,
+                unselectedTextColor = Color.White,
+                indicatorColor = Color.Transparent
+            )
         )
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewMenuScreen() {
-    LoginBody()
+    MenuScreen()
 }
-

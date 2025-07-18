@@ -1,4 +1,5 @@
-package com.example.musicplayer
+package com.example.musicplayer.view
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -48,6 +49,7 @@ fun Playlist2Body() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
+                .padding(bottom = 72.dp) // prevent overlap with BottomNavBar
                 .verticalScroll(rememberScrollState())
         ) {
             TopAppBarSection()
@@ -210,4 +212,3 @@ fun BottomNavigationBar(modifier: Modifier = Modifier) {
         )
     }
 }
-

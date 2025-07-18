@@ -1,4 +1,4 @@
-package com.example.musicplayer
+package com.example.musicplayer.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.musicplayer.R
 
 @Composable
 fun HomeScreen() {
@@ -54,7 +55,10 @@ fun HomeScreen() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar(containerColor = Color(0xFF4C005F), contentColor = Color.White) {
+            NavigationBar(
+                containerColor = Color(0xFF4C005F),
+                contentColor = Color.White
+            ) {
                 navItems.forEachIndexed { index, item ->
                     NavigationBarItem(
                         icon = {
@@ -65,12 +69,21 @@ fun HomeScreen() {
                             }
                         },
                         label = { Text(item) },
-                        selected = index == 0,
-                        onClick = {}
+                        selected = index == 0, // Update as needed for active tab
+                        onClick = { /* TODO: handle navigation */ },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = Color.LightGray,
+                            selectedTextColor = Color.LightGray,
+                            unselectedIconColor = Color.White,
+                            unselectedTextColor = Color.White,
+                            indicatorColor = Color.Transparent
+                        )
                     )
                 }
             }
-        },
+        }
+,
+
         containerColor = Color.Transparent
     ) { paddingValues ->
         Box(

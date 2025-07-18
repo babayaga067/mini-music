@@ -5,4 +5,8 @@
     <string name="title_activity_playingnow">Playingnow</string>
     <string name="title_activity_search">search</string>
     <string name="title_activity_menu">Menu</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_login_new">LoginActivityNew</string>
+    <string name="title_activity_dashboard">DashboardActivity</string>
+    <string name="title_activity_searchpage">Searchpage</string>
 </resources>
