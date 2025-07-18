@@ -128,6 +128,7 @@ fun PlayingNowScreen() {
 
                 // Album Art
                 Image(
+                    //album
                     painter = painterResource(id = R.drawable.cruel),
                     contentDescription = "Album Art",
                     contentScale = ContentScale.Crop,
