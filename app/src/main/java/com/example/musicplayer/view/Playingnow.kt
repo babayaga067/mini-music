@@ -118,6 +118,7 @@ fun PlayingNowScreen() {
                         "Playing now",
                         color = Color.White,
                         fontSize = 18.sp,
+                        //fontsize
                         fontWeight = FontWeight.Bold
                     )
                 }
