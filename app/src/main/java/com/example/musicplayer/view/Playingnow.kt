@@ -120,6 +120,7 @@ fun PlayingNowScreen() {
                         fontSize = 18.sp,
                         //fontsize
                         fontWeight = FontWeight.Bold
+                        //fontweight
                     )
                 }
 
