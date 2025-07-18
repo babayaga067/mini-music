@@ -39,6 +39,7 @@ class PlayingnowActivity : ComponentActivity() {
     }
 }
 
+
 @Composable
 //Composable
 fun PlayingNowScreen() {
@@ -52,6 +53,8 @@ fun PlayingNowScreen() {
         Triple("Blue", "Young Kai", R.drawable.cruel),
         Triple("Cruel Summer", "Taylor Swift", R.drawable.cruel)
     )
+    //Scaffold
+
 
     Scaffold(
         containerColor = Color.Transparent,
