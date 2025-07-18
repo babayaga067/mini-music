@@ -90,6 +90,8 @@ fun PlayingNowScreen() {
                 .padding(padding)
         ) {
             Column(
+
+                //Column
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
@@ -209,6 +211,7 @@ fun PlayingNowScreen() {
     }
 }
 @Preview(showBackground = true)
+//preview
 @Composable
 fun Previewplayingnow() {
     //preview
