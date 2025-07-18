@@ -87,6 +87,7 @@ fun PlayingNowScreen() {
         }
     ) { padding ->
         Box(
+            //box
             //Box
             modifier = Modifier
                 .fillMaxSize()
