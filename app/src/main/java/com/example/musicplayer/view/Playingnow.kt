@@ -58,6 +58,7 @@ fun PlayingNowScreen() {
     //Scaffold
 
 
+
     Scaffold(
         containerColor = Color.Transparent,
         bottomBar = {
@@ -74,6 +75,7 @@ fun PlayingNowScreen() {
                     label = { Text("Search") },
                     selected = false,
                     onClick = {}
+                    //group
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.LibraryMusic, contentDescription = "Library") },
