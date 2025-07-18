@@ -134,6 +134,7 @@ fun PlayingNowScreen() {
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(220.dp)
+                        //clip
                         .clip(RoundedCornerShape(12.dp))
                 )
 
