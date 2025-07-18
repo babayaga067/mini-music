@@ -214,6 +214,7 @@ fun PlayingNowScreen() {
                                     .size(50.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                 //clip
+                                //clip
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
