@@ -37,6 +37,7 @@ class PlayingnowActivity : ComponentActivity() {
         setContent {
             PlayingNowScreen()
             //playingnowscreen
+            //setconte
         }
     }
 }
@@ -53,6 +54,7 @@ fun PlayingNowScreen() {
     )
 
     val moreSongs = listOf(
+        //val
         Triple("Blue", "Young Kai", R.drawable.cruel),
         Triple("Cruel Summer", "Taylor Swift", R.drawable.cruel)
     )
