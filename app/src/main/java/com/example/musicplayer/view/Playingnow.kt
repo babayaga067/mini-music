@@ -65,6 +65,7 @@ fun PlayingNowScreen() {
                     label = { Text("Home") },
                     selected = false,
                     onClick = {}
+                    //on click
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Search, contentDescription = "Search") },
