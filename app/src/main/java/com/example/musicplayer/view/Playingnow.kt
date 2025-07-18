@@ -130,6 +130,7 @@ fun PlayingNowScreen() {
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
+                //spacer
 
                 // Song Info
                 Text("Night Changes", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
