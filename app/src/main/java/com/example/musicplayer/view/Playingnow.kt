@@ -70,6 +70,7 @@ fun PlayingNowScreen() {
                     icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
                     label = { Text("Home") },
                     selected = false,
+                    //selected
                     onClick = {}
                     //on click
                 )
