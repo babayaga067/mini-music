@@ -42,6 +42,7 @@ class PlayingnowActivity : ComponentActivity() {
 
 
 @Composable
+//playingnow
 //Composable
 fun PlayingNowScreen() {
     val gradient = Brush.verticalGradient(
