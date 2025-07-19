@@ -39,6 +39,7 @@ class Playlist2Activity : ComponentActivity() {
 @Composable
 fun Playlist2Body() {
 
+
     val playlists = listOf(
         Playlist("Relax Songs", R.drawable.img1),
         Playlist("Driving vocals", R.drawable.img2),
