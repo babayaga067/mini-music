@@ -42,6 +42,7 @@ fun EditProfileScreen() {
     var mobileNumber by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
 
+
     Box(modifier = Modifier.fillMaxSize()) {
         //Background Image
         Image(
@@ -167,7 +168,7 @@ fun EditProfileScreen() {
     }
 }
 @Composable
-fun TextFieldColors() = OutlinedTextFieldDefaults.colors(
+fun  TextFieldColors() = OutlinedTextFieldDefaults.colors(
     unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
     focusedBorderColor = Color.White,
     focusedTextColor = Color.White,
