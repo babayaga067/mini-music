@@ -142,7 +142,7 @@ fun ProfileScreen() {
                 Text("Help and Support", color = Color.White, fontWeight = FontWeight.Medium)
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier  = Modifier.weight(1f))
 
         }
     }
@@ -178,6 +178,7 @@ fun BottomNav() {
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
