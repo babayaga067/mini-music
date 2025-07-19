@@ -69,7 +69,7 @@ fun OverflowScreen() {
 
             // Account Overview
             Text("Help and Support", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier =Modifier.height(12.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -82,7 +82,7 @@ fun OverflowScreen() {
             Spacer(modifier = Modifier.height(24.dp))
 
             // About Us
-            Text("About Us", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text("About Us",color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "This app appears to be a full-featured music streaming platform, possibly targeting a youthful audience with a clean and vibrant UI. It includes all standard features expected from a music app: playback, search, playlists, profile, and a smooth onboarding flow.",
