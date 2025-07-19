@@ -45,6 +45,7 @@ fun Playlist2Body() {
         Playlist("Add new playlist", R.drawable.img3, isAddNew = true)
     )
 
+
     val favouriteSongs = remember {
         mutableStateListOf(
             Song("WILDFLOWER", "Billie Eilish", R.drawable.wildflower, true),
