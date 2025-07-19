@@ -163,7 +163,6 @@ fun PlaylistCard(playlist: Playlist) {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewMyScreen() {
