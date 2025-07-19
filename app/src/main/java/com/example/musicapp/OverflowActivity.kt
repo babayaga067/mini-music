@@ -52,7 +52,7 @@ fun OverflowScreen() {
         ) {
             // Top Bar
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment =  Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
@@ -103,7 +103,7 @@ fun OverflowScreen() {
                 Text("sangeet@gmail.com", color = Color.White)
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier =  Modifier.weight(1f))
 
             BottomNav()
         }
