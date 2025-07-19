@@ -37,6 +37,7 @@ class ProfileActivity : ComponentActivity() {
 }
 
 @Composable
+
 fun ProfileScreen() {
     Box(modifier = Modifier.fillMaxSize()) {
         // Background Image
@@ -147,6 +148,7 @@ fun ProfileScreen() {
         }
     }
 }
+
 @Composable
 fun BottomNav() {
     val icons = listOf(
@@ -178,6 +180,7 @@ fun BottomNav() {
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

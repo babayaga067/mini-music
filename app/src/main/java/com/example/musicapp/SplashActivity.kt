@@ -37,7 +37,6 @@ class SplashActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
            SplashBody()
-
         }
     }
 }
