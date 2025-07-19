@@ -42,7 +42,6 @@ fun EditProfileScreen() {
     var mobileNumber by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
 
-
     Box(modifier = Modifier.fillMaxSize()) {
         //Background Image
         Image(
