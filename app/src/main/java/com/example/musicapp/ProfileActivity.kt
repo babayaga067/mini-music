@@ -37,7 +37,6 @@ class ProfileActivity : ComponentActivity() {
 }
 
 @Composable
-
 fun ProfileScreen() {
     Box(modifier = Modifier.fillMaxSize()) {
         // Background Image
