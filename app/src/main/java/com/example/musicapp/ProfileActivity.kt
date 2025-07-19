@@ -181,7 +181,6 @@ fun BottomNav() {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewProfileScreen() {
