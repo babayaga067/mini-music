@@ -135,7 +135,6 @@ fun Playlist2Body() {
 
 data class Playlist(val name: String, val imageRes: Int, val isAddNew: Boolean = false)
 
-
 @Composable
 fun PlaylistCard(playlist: Playlist) {
     Column(
