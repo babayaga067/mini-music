@@ -32,6 +32,7 @@ import androidx.activity.compose.setContent
 
 
 class PlayingnowActivity : ComponentActivity() {
+    //Resource
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
