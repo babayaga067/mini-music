@@ -198,6 +198,7 @@ fun PlayingNowScreen() {
                 Spacer(modifier = Modifier.height(8.dp))
 // Column
                 LazyColumn {
+                    //lazy column
                     items(moreSongs) { item ->
                         val (title, artist, image) = item
                         Row(
