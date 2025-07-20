@@ -132,6 +132,7 @@ fun PlayingNowScreen() {
                     painter = painterResource(id = R.drawable.cruel),
                     contentDescription = "Album Art",
                     contentScale = ContentScale.Crop,
+                    //crop
                     modifier = Modifier
                         .size(220.dp)
                         //clip
