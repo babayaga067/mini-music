@@ -205,6 +205,7 @@ fun PlayingNowScreen() {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
+                            //vertical Alignment
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
