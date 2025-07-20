@@ -220,6 +220,7 @@ fun PlayingNowScreen() {
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Column(modifier = Modifier.weight(1f)) {
+                                //column
                                 Text(title, color = Color.White, fontWeight = FontWeight.Bold)
                                 Text(artist, color = Color.LightGray, fontSize = 12.sp)
                             }
