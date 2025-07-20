@@ -10,15 +10,10 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.example.sangeet" />
-                  <option name="mobileSdkAppId" value="1:653620662895:android:4da07430dd309df5a4f39a" />
-                  <option name="projectId" value="sangeetmusicapp" />
-                  <option name="projectNumber" value="653620662895" />
+                  <option name="mobileSdkAppId" value="1:648320684696:android:0072f498c9560b8857f6ed" />
+                  <option name="projectId" value="test-project-15831" />
+                  <option name="projectNumber" value="648320684696" />
                 </ConnectionSetting>
-              </option>
-              <option name="failureTypes">
-                <list>
-                  <option value="NON_FATAL" />
-                </list>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
               <option name="timeIntervalDays" value="THIRTY_DAYS" />
